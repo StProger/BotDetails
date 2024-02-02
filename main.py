@@ -1,5 +1,5 @@
 from aiogram import Dispatcher, Bot
-from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.methods import DeleteWebhook
 
 import asyncio
@@ -15,8 +15,8 @@ import logging
 
 async def main():
 
-    bot = Bot(token=TOKEN_BOT)
-    dp = Dispatcher(storage=RedisStorage(redis=Redis()))
+    bot = Bot(token=TOKEN_BOT, parse_mode="HTML")
+    dp = Dispatcher(storage=MemoryStorage())
     await bot(DeleteWebhook(drop_pending_updates=True))
     dp.include_routers(
         main_router_user

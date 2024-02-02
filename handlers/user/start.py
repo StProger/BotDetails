@@ -4,6 +4,8 @@ from aiogram.fsm.context import FSMContext
 
 from keyboard import menu
 
+import os
+
 
 start_router = Router()
 
@@ -11,7 +13,8 @@ start_router = Router()
 @start_router.callback_query(F.data == "go_menu")
 async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     await state.clear()
-
+    if os.path.exists(f"data/{callback.from_user.id}_data.json"):
+        os.remove(f"data/{callback.from_user.id}_data.json")
     await callback.message.delete()
     await bot.send_photo(
         chat_id=callback.from_user.id,
@@ -21,8 +24,11 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
 
 
 @start_router.message(CommandStart())
-async def cmd_start(message: types.Message, bot: Bot):
+async def cmd_start(message: types.Message, bot: Bot, state: FSMContext):
+    await state.clear()
 
+    if os.path.exists(f"data/{message.from_user.id}_data.json"):
+        os.remove(f"data/{message.from_user.id}_data.json")
     try:
         await bot.delete_message(
             chat_id=message.from_user.id,

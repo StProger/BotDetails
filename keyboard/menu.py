@@ -26,5 +26,26 @@ def choose_producer_key(names: list):
     builder = InlineKeyboardBuilder()
     for i, name in enumerate(names):
         builder.button(text=name, callback_data=str(i))
-    builder.adjust(1)
+    builder.row(
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
     return builder.as_markup()
+
+
+def choose_item_key():
+
+    builder = InlineKeyboardBuilder()
+    for i in range(1, 4):
+        builder.button(text=str(i), callback_data=str(i-1))
+    builder.row(
+        InlineKeyboardButton(
+            text="Назад", callback_data="back_to_prod"
+        ),
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+    return builder.as_markup()
+

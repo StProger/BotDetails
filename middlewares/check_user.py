@@ -14,13 +14,11 @@ class CheckUser(BaseMiddleware):
             event: TelegramObject,
             data: Dict[str, Any],
     ) -> Any:
-        print(data)
         user_id = data["event_from_user"].id
         message: types.Message = data["event_update"].message
 
 
         if not(await DatabaseAPI.user_exist(telegram_id=user_id)):
-            print("Регаю")
             await DatabaseAPI.register_user(
                 telegram_id=message.from_user.id,
                 username=message.from_user.username,

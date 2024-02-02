@@ -8,6 +8,8 @@ from db_api.api import DatabaseAPI
 
 import json
 
+from utils.get_params import get_params
+
 detail_router = Router()
 
 
@@ -44,7 +46,8 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
             text="Вы ввели некорректный артикул, попробуйте ещё раз.",
             reply_markup=menu.go_menu()
         )
-
+        return
+    clock_message = await message.answer("⏳")
     result = await DatabaseAPI.get_data_for_articul(article=message.text, telegram_id=message.from_user.id)
     if not result:
         await message.answer("Нет деталей с таким артикулом, попробуйте другой артикул.",
@@ -57,6 +60,7 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         names = []
         for key in data.keys():
             names.append(data[key][0]["Названия бренда"])
+        await clock_message.delete()
         await message.answer(
             text="Выберите производителя",
             reply_markup=menu.choose_producer_key(names=names)
@@ -64,8 +68,35 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         await state.set_state(SGetDetail.choose_producer)
 
 
+@detail_router.callback_query(SGetDetail.choose_producer, F.data == "back_to_prod")
+async def get_producer(callback: types.CallbackQuery, state: FSMContext):
+    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+        data = json.loads(file.read())
+
+    names = []
+    for key in data.keys():
+        names.append(data[key][0]["Названия бренда"])
+    await callback.message.edit_text(
+        text="Выберите производителя",
+        reply_markup=menu.choose_producer_key(names=names)
+    )
+    await state.set_state(SGetDetail.choose_producer)
+
+
 @detail_router.callback_query(SGetDetail.choose_producer)
 async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
-    choosed_producer = data.keys()[int(callback.data)]
+    choosed_producer = None
+    for i, key in enumerate(data.keys()):
+        if i == int(callback.data):
+            choosed_producer = key
+            break
+    text = await get_params(data[choosed_producer])
+    await state.update_data(choosed_producer=choosed_producer)
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=menu.choose_item_key()
+    )
+
+

@@ -66,6 +66,7 @@ def get_session(username: str, password: str) -> requests.Session or None:
 
 def start_parser(article: str, username: str, password: str) -> dict | bool:
     result = {}
+    print("Начал искать")
     session = get_session(username, password)
     if session is None:
         return False
@@ -78,11 +79,11 @@ def start_parser(article: str, username: str, password: str) -> dict | bool:
     return result
 
 
-article = "3142025000"
-USERNAME = "rmdimin.ar@yandex.ru"
-PASSWORD = "589348"
-
-result = start_parser(article, USERNAME, PASSWORD)
-
-with open('avtopartner-parser/data.json', 'w', encoding='utf-8') as f:
-    json.dump(result, f, ensure_ascii=False, indent=4)
+# article = "3142025000"
+# USERNAME = "rmdimin.ar@yandex.ru"
+# PASSWORD = "589348"
+#
+# result = start_parser(article, USERNAME, PASSWORD)
+#
+# with open('avtopartner-parser/data.json', 'w', encoding='utf-8') as f:
+#     json.dump(result, f, ensure_ascii=False, indent=4)
