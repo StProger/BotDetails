@@ -21,7 +21,7 @@ async def get_params(data: list) -> str:
             refund = True
         if official_seller and not any(link in item["Ссылка на метку скалада"] for link in [refund_false_link, i3_link]):
             refund = True
-        price_item = int("".join(i for i in item["Цена"].split()[:-1])) * (int(percent)+100/100)
+        price_item = float("".join(i for i in item["Цена"].split()[:-1])) * ((float(percent)+100)/100)
         text += f"{i+1}. {item['Названия']}\n\n" \
                 f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
                 f"<b>МАРКА</b> - {item['Марка']}\n" \
@@ -30,13 +30,15 @@ async def get_params(data: list) -> str:
         if refund:
             text += "<b>ВОЗВРАТ</b> - Возможен\n"
             if official_seller:
-                text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n\n"
-            else:
-                text += "\n"
+                text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
+            if not (item["original"]):
+                text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
+            text += "\n"
         else:
             text += "<b>ВОЗВРАТ</b> - Невозможен\n"
             if official_seller:
-                text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n\n"
-            else:
-                text += "\n"
+                text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
+            if not (item["original"]):
+                text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
+            text += "\n"
     return text

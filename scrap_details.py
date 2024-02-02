@@ -11,7 +11,7 @@ def get_attr_from_link(link: str, attr: str) -> str:
     return attr_str
 
 
-def is_collectable(items: list or None, headers: list) -> tuple:
+def is_collectable(items: list or None, headers: list) -> tuple | bool:
     if not items: return False
     for item in items:
         if item in headers:
@@ -22,26 +22,35 @@ def is_collectable(items: list or None, headers: list) -> tuple:
 def get_data_by_link(session: requests.Session, link: str) -> list or None:
     data = []
     response = session.post(link)
-    if response.status_code in [200]: 
+    if response.status_code in [200]:
         soup = BeautifulSoup(response.text, "html.parser")
-        trs = soup.select("table.lm-auto-search-parts tr.hproduct")
-        for tr in trs[0:3]:
-            data.append({
-                "Названия бренда": get_attr_from_link(link, "brand_title"), 
-                "В наличии": tr.select_one("td.instock").text.replace(tr.select_one("td.instock time").text, "").strip("\n").strip(),
-                "Последняя проверка наличия": tr.select_one("td.instock time").text.strip("\n").strip(),
-                "Марка": tr.select_one("td.brand").text.strip("\n").strip(), 
-                "Склад": tr.select_one("td.stock").text.strip("\n").strip(), 
-                "Ссылка на метку скалада": ["https://avtopartner.online" + i.get("src") for i in tr.select("td.stock img")],   #"https://avtopartner.online" + tr.select_one("td.stock img").get("src"),
-                "Артикул": tr.select_one("td.sku").text.strip("\n").strip(), 
-                "Цена": tr.select_one("td.price").text.strip("\n").strip(), 
-                "Время доставки": tr.select_one("td.delivery_time").text.strip("\n").strip(), 
-                "Бокс": tr.select("td.fn")[0].text.strip("\n").strip(), 
-                "Названия": tr.select("td.fn")[1].text.strip("\n").strip(), 
-                "Стат. отк.": tr.select_one("div.piechart").text.strip("\n").strip()
-            })
-        return data
-    return None
+        print('ответ получен')
+        tables = soup.find_all("h2", {"data-group-id": ["N", "0", "1"]})
+        for table in tables:
+            is_original = table['data-group-id'] == "N"  # Определяем, является ли таблица для оригинальных запчастей
+            trs = table.find_next("table", class_="lm-auto-search-parts").select("tr.hproduct")
+
+            for tr in trs[0:3]:
+                data.append({
+                    "Названия бренда": get_attr_from_link(link, "brand_title"),
+                    "В наличии": tr.select_one("td.instock").text.replace(tr.select_one("td.instock time").text,
+                                                                          "").strip("\n").strip(),
+                    "Последняя проверка наличия": tr.select_one("td.instock time").text.strip("\n").strip(),
+                    "Марка": tr.select_one("td.brand").text.strip("\n").strip(),
+                    "Склад": tr.select_one("td.stock").text.strip("\n").strip(),
+                    "Ссылка на метку скалада": ["https://avtopartner.online" + i.get("src") for i in tr.select("td.stock img")],
+                    "Артикул": tr.select_one("td.sku").text.strip("\n").strip(),
+                    "Цена": tr.select_one("td.price").text.strip("\n").strip(),
+                    "Время доставки": tr.select_one("td.delivery_time").text.strip("\n").strip(),
+                    "Бокс": tr.select("td.fn")[0].text.strip("\n").strip(),
+                    "Названия": tr.select("td.fn")[1].text.strip("\n").strip(),
+                    "Стат. отк.": tr.select_one("div.piechart").text.strip("\n").strip(),
+                    "original": is_original
+                })
+
+        data = data[0:3]
+
+    return data if data else None
 
 
 def get_links_by_article(session: requests.Session, article: str) -> list or None:
@@ -71,7 +80,7 @@ def start_parser(article: str, username: str, password: str) -> dict | bool:
     if session is None:
         return False
     links = get_links_by_article(session, article)
-    if links is None:
+    if links is None or links == [] or links == {}:
         return False
     for link in links:
         data = get_data_by_link(session, link)

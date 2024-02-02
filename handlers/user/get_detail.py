@@ -32,26 +32,13 @@ async def get_article(callback: types.CallbackQuery, state: FSMContext):
 @detail_router.message(SGetDetail.article)
 async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
 
-    if not(message.text.isdigit()):
-        try:
-            await bot.delete_message(
-                chat_id=message.from_user.id,
-                message_id=message.message_id-1
-            )
-        except:
-            pass
-        await message.delete()
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text="Вы ввели некорректный артикул, попробуйте ещё раз.",
-            reply_markup=menu.go_menu()
-        )
-        return
-    clock_message = await message.answer("⏳")
+    clock_message = await message.answer("Идет поиск товара, подождите немного⏳")
     result = await DatabaseAPI.get_data_for_articul(article=message.text, telegram_id=message.from_user.id)
     if not result:
+        await clock_message.delete()
         await message.answer("Нет деталей с таким артикулом, попробуйте другой артикул.",
                              reply_markup=menu.go_menu())
+        return
 
     else:
         with open(f"data/{message.from_user.id}_data.json", "r") as file:

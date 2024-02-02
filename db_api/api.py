@@ -101,7 +101,7 @@ class DatabaseAPI(object):
         result = start_parser(article=article,
                               username=login,
                               password=password)
-        if result is None:
+        if result is None or result == False:
             return False
         else:
             with open(f"data/{telegram_id}_data.json", "w") as file:
