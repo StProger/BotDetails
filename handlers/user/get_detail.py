@@ -8,7 +8,7 @@ from db_api.api import DatabaseAPI
 
 import json
 
-from utils.get_params import get_params
+from utils.get_params import get_params, get_params_one_detail
 
 detail_router = Router()
 
@@ -18,6 +18,7 @@ class SGetDetail(StatesGroup):
     article = State()
     choose_producer = State()
     choose_item = State()
+    order = State()
 
 
 @detail_router.callback_query(F.data == "get_detail_menu")
@@ -81,9 +82,41 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
             break
     text = await get_params(data[choosed_producer])
     await state.update_data(choosed_producer=choosed_producer)
+    await state.set_state(SGetDetail.choose_item)
     await callback.message.edit_text(
         text=text,
         reply_markup=menu.choose_item_key()
     )
 
 
+@detail_router.callback_query(SGetDetail.choose_item)
+async def go_order(callback: types.CallbackQuery, state: FSMContext):
+
+    state_data = await state.get_data()
+    choosed_producer = state_data["choosed_producer"]
+
+    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+        data = json.loads(file.read())
+
+    choose_detail = data[choosed_producer][int(callback.data)]
+    await state.set_state(SGetDetail.order)
+    text = await get_params_one_detail(choose_detail)
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=menu.key_order()
+    )
+
+
+@detail_router.callback_query(SGetDetail.order, F.data == "back_to_choose_detail")
+async def back_to_choose_detail(callback: types.CallbackQuery, state: FSMContext):
+
+    state_data = await state.get_data()
+    choosed_producer = state_data["choosed_producer"]
+    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+        data = json.loads(file.read())
+    text = await get_params(data[choosed_producer])
+    await state.set_state(SGetDetail.choose_item)
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=menu.choose_item_key()
+    )

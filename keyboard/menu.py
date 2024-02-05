@@ -42,7 +42,7 @@ def choose_item_key():
 
     builder = InlineKeyboardBuilder()
     for i in range(1, 4):
-        builder.button(text=str(i), callback_data=str(i-1))
+        builder.button(text=str(i), callback_data=f"{str(i - 1)}")
     builder.row(
         InlineKeyboardButton(
             text="Назад", callback_data="back_to_prod"
@@ -58,3 +58,21 @@ def choose_item_key():
     )
     return builder.as_markup()
 
+
+def key_order():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Оформить заказ", callback_data="go_order")
+    builder.row(
+        InlineKeyboardButton(
+            text="Назад", callback_data="back_to_choose_detail"
+        ),
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="Ввести другой артикул", callback_data="get_detail_menu"
+        )
+    )
+    return builder.as_markup()

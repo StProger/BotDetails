@@ -2,7 +2,9 @@ from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
 import requests
 import json
+from concurrent.futures import ThreadPoolExecutor
 
+import time
 
 def get_attr_from_link(link: str, attr: str) -> str:
     parsed_url = urlparse(link)
@@ -82,12 +84,16 @@ def start_parser(article: str, username: str, password: str) -> dict | bool:
     links = get_links_by_article(session, article)
     if links is None or links == [] or links == {}:
         return False
+
     for link in links:
         data = get_data_by_link(session, link)
         if data: result[link] = data
     return result
-
-
+if __name__ == '__main__':
+    start_time = time.time()
+    start_parser(article="ВР22517", username="rmdimin.ar@yandex.ru", password="589348")
+    end_time = time.time()
+    print(f"Затраченное время: {end_time - start_time}")
 # article = "3142025000"
 # USERNAME = "rmdimin.ar@yandex.ru"
 # PASSWORD = "589348"
