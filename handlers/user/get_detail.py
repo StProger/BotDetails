@@ -105,7 +105,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     text = await get_params_one_detail(item=choose_detail, state=state)
     await state.update_data(choosed_detail=text)
     config_admin = await DatabaseAPI.get_config()
-    if config_admin["warning_text"]:
+    if config_admin["warning"]:
         await state.set_state(SGetDetail.order)
         warning_text = config_admin["warning_text"]
         await callback.message.edit_text(
