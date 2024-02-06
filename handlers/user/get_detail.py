@@ -181,5 +181,8 @@ async def get_contacts(callback: types.CallbackQuery,
 @detail_router.message(SGetDetail.contacts)
 async def get_photo_pay(message: types.Message,
                         state: FSMContext):
-    print(message.contact)
-
+    contact = message.contact
+    await state.update_data(phone=contact.phone_number, name=contact.first_name)
+    state_data = await state.get_data()
+    price = state_data["price_detail"]
+    await message.answer(f"Отправьте {price} рублей на карту XXXXXXX и пришлите скриншот оплаты.")
