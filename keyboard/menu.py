@@ -79,10 +79,11 @@ def key_order():
 
 
 def key_points(points):
+
     builder = InlineKeyboardBuilder()
 
     for point in points:
-        builder.button(text=point["button_name"], callback_data=point["id"])
+        builder.button(text=point["button_name"], callback_data=str(point["id"]))
     builder.adjust(3)
     builder.row(
         InlineKeyboardButton(
