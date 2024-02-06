@@ -185,4 +185,4 @@ async def get_photo_pay(message: types.Message,
     await state.update_data(phone=contact.phone_number, name=contact.first_name)
     state_data = await state.get_data()
     price = state_data["price_detail"]
-    await message.answer(f"Отправьте {price} рублей на карту XXXXXXX и пришлите скриншот оплаты.")
+    await message.answer(f"Отправьте {int(price)} рублей на карту XXXXXXX и пришлите скриншот оплаты.")
