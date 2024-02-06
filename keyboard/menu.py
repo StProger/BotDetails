@@ -93,6 +93,7 @@ def key_points(points):
             text="Меню", callback_data="go_menu"
         )
     )
+    return builder.as_markup()
 
 
 def key_get_contacts():
