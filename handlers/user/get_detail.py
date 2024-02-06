@@ -178,7 +178,7 @@ async def get_contacts(callback: types.CallbackQuery,
     )
 
 
-@detail_router.message(SGetDetail.contacts, F.text == "Отправить свой контакт📲")
+@detail_router.message(types.contact.Contact, SGetDetail.contacts, F.text == "Отправить свой контакт📲")
 async def get_photo_pay(message: types.Message,
                         state: FSMContext):
     print(message.contact)
