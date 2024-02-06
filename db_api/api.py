@@ -59,13 +59,13 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=about_company"
         async with aiohttp.ClientSession(headers=headers) as session:
 
             response = await session.get(url=url)
             data = await response.json()
         print(data)
-        return data["data"][0]["about_company"]
+        return data["data"][0]["value"]
 
     @staticmethod
     async def get_refund():
@@ -76,12 +76,13 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=refund_info"
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
         print(data)
-        return data["data"][0]["refund_info"]
+        return data["data"][0]["value"]
+
 
     @staticmethod
     async def get_data_for_articul(telegram_id, article):
@@ -92,12 +93,16 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        url_login = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=login"
         async with aiohttp.ClientSession(headers=headers) as session:
-            response = await session.get(url=url)
+            response = await session.get(url=url_login)
             data = await response.json()
-        login = data["data"][0]["login"]
-        password = data["data"][0]["password"]
+        login = data["data"][0]["value"]
+        url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url_password)
+            data = await response.json()
+        password = data["data"][0]["value"]
         result = start_parser(article=article,
                               username=login,
                               password=password)
@@ -118,11 +123,11 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=percent"
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
-        return data["data"][0]["percent"]
+        return data["data"][0]["value"]
 
     @staticmethod
     async def get_points():
@@ -141,7 +146,7 @@ class DatabaseAPI(object):
         return data["data"]
 
     @staticmethod
-    async def get_config():
+    async def get_warning_text():
 
         BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
 
@@ -149,8 +154,8 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=warning_text"
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
-        return data["data"][0]
+        return data["data"][0]["value"]
