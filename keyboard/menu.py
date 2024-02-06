@@ -1,5 +1,5 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from aiogram.types import InlineKeyboardButton, KeyboardButton
 
 
 def menu_key():
@@ -76,3 +76,30 @@ def key_order():
         )
     )
     return builder.as_markup()
+
+
+def key_points(points):
+    builder = InlineKeyboardBuilder()
+
+    for point in points:
+        builder.button(text=point["button_name"], callback_data=point["id"])
+    builder.adjust(3)
+    builder.row(
+        InlineKeyboardButton(
+            text="Назад", callback_data="back_to_choose_detail"
+        ),
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+
+
+def key_get_contacts():
+
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Отправить свой контакт📲", request_contact=True)
+    keyboard = builder.as_markup()
+    keyboard.resize_keyboard = True
+    keyboard.one_time_keyboard = True
+    return keyboard
+

@@ -40,7 +40,7 @@ def get_data_by_link(session: requests.Session, link: str) -> list or None:
                     "Последняя проверка наличия": tr.select_one("td.instock time").text.strip("\n").strip(),
                     "Марка": tr.select_one("td.brand").text.strip("\n").strip(),
                     "Склад": tr.select_one("td.stock").text.strip("\n").strip(),
-                    "Ссылка на метку скалада": ["https://avtopartner.online" + i.get("src") for i in tr.select("td.stock img")],
+                    "Ссылка на метку склада": ["https://avtopartner.online" + i.get("src") for i in tr.select("td.stock img")],
                     "Артикул": tr.select_one("td.sku").text.strip("\n").strip(),
                     "Цена": tr.select_one("td.price").text.strip("\n").strip(),
                     "Время доставки": tr.select_one("td.delivery_time").text.strip("\n").strip(),

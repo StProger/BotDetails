@@ -123,3 +123,34 @@ class DatabaseAPI(object):
             response = await session.get(url=url)
             data = await response.json()
         return data["data"][0]["percent"]
+
+    @staticmethod
+    async def get_points():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_pickup_points"
+
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"]
+
+    @staticmethod
+    async def get_config():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[id][_eq]=1"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]

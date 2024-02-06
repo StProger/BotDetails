@@ -19,6 +19,8 @@ class SGetDetail(StatesGroup):
     choose_producer = State()
     choose_item = State()
     order = State()
+    point_pickup = State()
+    contacts = State()
 
 
 @detail_router.callback_query(F.data == "get_detail_menu")
@@ -99,12 +101,25 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
         data = json.loads(file.read())
 
     choose_detail = data[choosed_producer][int(callback.data)]
-    await state.set_state(SGetDetail.order)
-    text = await get_params_one_detail(choose_detail)
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=menu.key_order()
-    )
+
+    text = await get_params_one_detail(item=choose_detail, state=state)
+    await state.update_data(choosed_detail=text)
+    config_admin = await DatabaseAPI.get_config()
+    if config_admin["warning_text"]:
+        await state.set_state(SGetDetail.order)
+        warning_text = config_admin["warning_text"]
+        await callback.message.edit_text(
+            text=warning_text,
+            reply_markup=menu.key_order()
+        )
+    else:
+        await state.set_state(SGetDetail.point_pickup)
+        points = await DatabaseAPI.get_points()
+        text = "Выберите пункт самовывоза⬇️"
+        await callback.message.edit_text(
+            text=text,
+            reply_markup=menu.key_points(points=points)
+        )
 
 
 @detail_router.callback_query(SGetDetail.order, F.data == "back_to_choose_detail")
@@ -115,8 +130,41 @@ async def back_to_choose_detail(callback: types.CallbackQuery, state: FSMContext
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
     text = await get_params(data[choosed_producer])
+
     await state.set_state(SGetDetail.choose_item)
     await callback.message.edit_text(
         text=text,
         reply_markup=menu.choose_item_key()
     )
+
+
+@detail_router.callback_query(SGetDetail.order, F.data == "go_order")
+async def get_point(callback: types.CallbackQuery, state: FSMContext):
+
+    await state.set_state(SGetDetail.point_pickup)
+    points = await DatabaseAPI.get_points()
+    text = "Выберите пункт самовывоза⬇️"
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=menu.key_points(points=points)
+    )
+
+
+@detail_router.callback_query(SGetDetail.point_pickup)
+async def get_contacts(callback: types.CallbackQuery,
+                       state: FSMContext,
+                       bot: Bot):
+    await state.set_state(SGetDetail.contacts)
+    text = "Отправьте свои контактные данные для связи. Для этого нажмите кнопку ниже⬇️"
+    await callback.message.delete()
+    await callback.message.answer(
+        text=text,
+        reply_markup=menu.key_get_contacts()
+    )
+
+
+@detail_router.message(SGetDetail.contacts, F.text == "Отправить свой контакт📲")
+async def get_photo_pay(message: types.Message,
+                        state: FSMContext):
+    print(message.contact)
+
