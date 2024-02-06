@@ -87,7 +87,7 @@ def key_points(points):
     builder.adjust(3)
     builder.row(
         InlineKeyboardButton(
-            text="Назад", callback_data="back_to_choose_detail"
+            text="Назад", callback_data="back_to_detail"
         ),
         InlineKeyboardButton(
             text="Меню", callback_data="go_menu"

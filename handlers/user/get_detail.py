@@ -150,6 +150,21 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
     )
 
 
+@detail_router.callback_query(SGetDetail.point_pickup, F.data == "back_to_detail")
+async def back_to_detail(callback: types.CallbackQuery, state: FSMContext):
+    state_data = await state.get_data()
+    choosed_producer = state_data["choosed_producer"]
+    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+        data = json.loads(file.read())
+    text = await get_params(data[choosed_producer])
+
+    await state.set_state(SGetDetail.choose_item)
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=menu.choose_item_key()
+    )
+
+
 @detail_router.callback_query(SGetDetail.point_pickup)
 async def get_contacts(callback: types.CallbackQuery,
                        state: FSMContext,
