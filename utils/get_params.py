@@ -4,6 +4,7 @@ from db_api.api import DatabaseAPI
 
 
 async def get_params(data: list) -> str:
+    print(data)
 
     official_seller_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/ok.gif"
     refund_false_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/B_red.gif"
