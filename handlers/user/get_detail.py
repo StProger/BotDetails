@@ -230,6 +230,6 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     result = re.search(pattern, text)
     await bot.send_message(
         chat_id=user_id,
-        text=result
+        text=result.group(0)
     )
     await callback.message.edit_caption(caption="Заявка одобрена")
