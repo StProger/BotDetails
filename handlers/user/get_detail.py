@@ -59,21 +59,6 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         await state.set_state(SGetDetail.choose_producer)
 
 
-@detail_router.callback_query(SGetDetail.choose_producer, F.data == "back_to_prod")
-async def get_producer(callback: types.CallbackQuery, state: FSMContext):
-    with open(f"data/{callback.from_user.id}_data_links.json", "r") as file:
-        data = json.loads(file.read())
-
-    names = []
-    for key in data.keys():
-        names.append(data[key]["Названия бренда"])
-    await callback.message.edit_text(
-        text="Выберите производителя",
-        reply_markup=menu.choose_producer_key(names=names)
-    )
-    await state.set_state(SGetDetail.choose_producer)
-
-
 @detail_router.callback_query(SGetDetail.choose_producer)
 async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
 
@@ -94,6 +79,21 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
         text=text,
         reply_markup=menu.choose_item_key()
     )
+
+
+@detail_router.callback_query(SGetDetail.choose_item, F.data == "back_to_prod")
+async def get_producer(callback: types.CallbackQuery, state: FSMContext):
+    with open(f"data/{callback.from_user.id}_data_links.json", "r") as file:
+        data = json.loads(file.read())
+
+    names = []
+    for key in data.keys():
+        names.append(data[key]["Названия бренда"])
+    await callback.message.edit_text(
+        text="Выберите производителя",
+        reply_markup=menu.choose_producer_key(names=names)
+    )
+    await state.set_state(SGetDetail.choose_producer)
 
 
 @detail_router.callback_query(SGetDetail.choose_item)
