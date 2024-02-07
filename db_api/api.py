@@ -133,38 +133,6 @@ class DatabaseAPI(object):
         with open(f"data/{telegram_id}_data.json", "w") as file:
             json.dump(result, file, ensure_ascii=False, indent=4)
 
-
-
-    # @staticmethod
-    # async def get_data_for_articul(telegram_id, article):
-    #
-    #     BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
-    #
-    #     headers = {
-    #         'Authorization': BEARER_TOKEN
-    #     }
-    #
-    #     url_login = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=login"
-    #     async with aiohttp.ClientSession(headers=headers) as session:
-    #         response = await session.get(url=url_login)
-    #         data = await response.json()
-    #     login = data["data"][0]["value"]
-    #     url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
-    #     async with aiohttp.ClientSession(headers=headers) as session:
-    #         response = await session.get(url=url_password)
-    #         data = await response.json()
-    #     password = data["data"][0]["value"]
-    #     result = start_parser(article=article,
-    #                           username=login,
-    #                           password=password)
-    #     if result is None or result == False:
-    #         return False
-    #     else:
-    #         with open(f"data/{telegram_id}_data.json", "w") as file:
-    #
-    #             json.dump(result, file, ensure_ascii=False, indent=4)
-    #         return True
-
     @staticmethod
     async def get_percent():
 

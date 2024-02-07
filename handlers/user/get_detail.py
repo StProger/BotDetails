@@ -179,23 +179,36 @@ async def get_contacts(callback: types.CallbackQuery,
     await state.set_state(SGetDetail.contacts)
     text = "Отправьте свои контактные данные для связи. Для этого нажмите кнопку ниже⬇️"
     await callback.message.delete()
-    await callback.message.answer(
+    mes = await callback.message.answer(
         text=text,
         reply_markup=menu.key_get_contacts()
     )
-
+    await state.update_data(mes_del=mes.message_id)
 
 @detail_router.message(SGetDetail.contacts)
 async def get_photo_pay(message: types.Message,
-                        state: FSMContext):
+                        state: FSMContext,
+                        bot: Bot):
     contact = message.contact
     await state.update_data(phone=contact.phone_number, name=contact.first_name)
     state_data = await state.get_data()
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    try:
+        await message.delete()
+    except:
+        pass
     price = state_data["price_detail"]
     card = await DatabaseAPI.get_card()
     await state.set_state(SGetDetail.photo_pay)
-    await message.answer(f"Отправьте {int(price)} рублей на карту {card} и пришлите скриншот оплаты.",
+    mes_ = await message.answer(f"Отправьте {int(price)} рублей на карту <code>{card}</code> и пришлите скриншот оплаты.",
                          reply_markup=menu.key_photo_pay())
+    await state.update_data(mes_del=mes_.message_id)
 
 
 @detail_router.message(SGetDetail.photo_pay, F.photo)
@@ -215,7 +228,13 @@ async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bo
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id)
     )
-
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
     await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
                          reply_markup=menu.go_menu())
     await state.clear()
