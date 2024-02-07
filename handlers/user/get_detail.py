@@ -227,9 +227,12 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
     text = callback.message.caption
     pattern = re.compile(r'АРТИКУЛ.*?Склад', re.DOTALL)
-    result = re.search(pattern, text)
+    text = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n" \
+           "ТОВАР:\n\n"
+    result = re.search(pattern, text).group(0).replace("Склад", "").strip()
     await bot.send_message(
         chat_id=user_id,
-        text=result.group(0)
+        text=result,
+        reply_markup=menu.go_menu()
     )
-    await callback.message.edit_caption(caption="Заявка одобрена")
+    await callback.message.edit_caption(caption="Заявка одобрена✅")
