@@ -202,13 +202,30 @@ async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bo
     state_data = await state.get_data()
     channel_id = await DatabaseAPI.get_channel_id()
     photo_id = message.photo[-1].file_id
+
+    caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
+        f"Клиент:\n" \
+        f"Телефон: {state_data['phone']}\n" \
+        f"Имя: {state_data['name']}"
     await bot.send_photo(
         chat_id=channel_id,
         photo=photo_id,
-        caption=state_data["choosed_detail"],
+        caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id)
     )
 
     await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
                          reply_markup=menu.go_menu())
     await state.clear()
+
+
+@detail_router.callback_query(F.data.contains("accept_"))
+async def send_confirm(callback: types.CallbackQuery, bot: Bot):
+
+    user_id = callback.data.split("_")[-1]
+    text = callback.message.text
+    await bot.send_message(
+        chat_id=user_id,
+        text=text
+    )
+    await callback.message.edit_text("Заявка одобрена")
