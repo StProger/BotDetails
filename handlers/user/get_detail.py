@@ -1,3 +1,5 @@
+import re
+
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -224,9 +226,10 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
     text = callback.message.caption
-    
+    pattern = re.compile(r'АРТИКУЛ.*?Склад', re.DOTALL)
+    result = re.search(pattern, text)
     await bot.send_message(
         chat_id=user_id,
-        text=text
+        text=result
     )
     await callback.message.edit_caption(caption="Заявка одобрена")
