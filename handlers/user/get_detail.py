@@ -223,9 +223,10 @@ async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bo
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
-    text = callback.message.text
+    text = callback.message.caption
+    
     await bot.send_message(
         chat_id=user_id,
         text=text
     )
-    await callback.message.edit_text("Заявка одобрена")
+    await callback.message.edit_caption(caption="Заявка одобрена")
