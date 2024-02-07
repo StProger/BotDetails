@@ -31,16 +31,26 @@ async def get_article(callback: types.CallbackQuery, state: FSMContext):
 
     await state.set_state(SGetDetail.article)
     await callback.message.delete()
-    await callback.message.answer("Отправьте артикул желаемой детали.",
+    mes_ = await callback.message.answer("Отправьте артикул желаемой детали.",
                                   reply_markup=menu.go_menu())
+    await state.update_data(mes_del=mes_.message_id)
 
 
 @detail_router.message(SGetDetail.article)
 async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
 
+    state_data = await state.get_data()
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
     clock_message = await message.answer("Идет поиск товара, подождите немного⏳")
     result = await DatabaseAPI.get_links(article=message.text, telegram_id=message.from_user.id)
     if not result:
+        await message.delete()
         await clock_message.delete()
         await message.answer("Нет деталей с таким артикулом, попробуйте другой артикул.",
                              reply_markup=menu.go_menu())
@@ -54,6 +64,7 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         for key in data.keys():
             names.append(data[key]["Названия бренда"])
         await clock_message.delete()
+        await message.delete()
         await message.answer(
             text="Выберите производителя",
             reply_markup=menu.choose_producer_key(names=names)
