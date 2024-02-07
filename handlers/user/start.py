@@ -15,6 +15,8 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     await state.clear()
     if os.path.exists(f"data/{callback.from_user.id}_data.json"):
         os.remove(f"data/{callback.from_user.id}_data.json")
+    if os.path.exists(f"data/{callback.from_user.id}_data_links.json"):
+        os.remove(f"data/{callback.from_user.id}_data_links.json")
     await callback.message.delete()
     await bot.send_photo(
         chat_id=callback.from_user.id,
@@ -29,6 +31,8 @@ async def cmd_start(message: types.Message, bot: Bot, state: FSMContext):
 
     if os.path.exists(f"data/{message.from_user.id}_data.json"):
         os.remove(f"data/{message.from_user.id}_data.json")
+    if os.path.exists(f"data/{message.from_user.id}_data_links.json"):
+        os.remove(f"data/{message.from_user.id}_data_links.json")
     try:
         await bot.delete_message(
             chat_id=message.from_user.id,

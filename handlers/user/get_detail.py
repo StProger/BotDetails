@@ -37,7 +37,7 @@ async def get_article(callback: types.CallbackQuery, state: FSMContext):
 async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
 
     clock_message = await message.answer("Идет поиск товара, подождите немного⏳")
-    result = await DatabaseAPI.get_data_for_articul(article=message.text, telegram_id=message.from_user.id)
+    result = await DatabaseAPI.get_links(article=message.text, telegram_id=message.from_user.id)
     if not result:
         await clock_message.delete()
         await message.answer("Нет деталей с таким артикулом, попробуйте другой артикул.",
@@ -45,12 +45,12 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         return
 
     else:
-        with open(f"data/{message.from_user.id}_data.json", "r") as file:
+        with open(f"data/{message.from_user.id}_data_links.json", "r") as file:
             data = json.loads(file.read())
 
         names = []
         for key in data.keys():
-            names.append(data[key][0]["Названия бренда"])
+            names.append(data[key]["Названия бренда"])
         await clock_message.delete()
         await message.answer(
             text="Выберите производителя",
@@ -61,12 +61,12 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
 
 @detail_router.callback_query(SGetDetail.choose_producer, F.data == "back_to_prod")
 async def get_producer(callback: types.CallbackQuery, state: FSMContext):
-    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+    with open(f"data/{callback.from_user.id}_data_links.json", "r") as file:
         data = json.loads(file.read())
 
     names = []
     for key in data.keys():
-        names.append(data[key][0]["Названия бренда"])
+        names.append(data[key]["Названия бренда"])
     await callback.message.edit_text(
         text="Выберите производителя",
         reply_markup=menu.choose_producer_key(names=names)
@@ -76,13 +76,17 @@ async def get_producer(callback: types.CallbackQuery, state: FSMContext):
 
 @detail_router.callback_query(SGetDetail.choose_producer)
 async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
-    with open(f"data/{callback.from_user.id}_data.json", "r") as file:
+
+    with open(f"data/{callback.from_user.id}_data_links.json", "r") as file:
         data = json.loads(file.read())
     choosed_producer = None
     for i, key in enumerate(data.keys()):
         if i == int(callback.data):
             choosed_producer = key
             break
+    await DatabaseAPI.get_data_by_link(telegram_id=callback.from_user.id, link=choosed_producer)
+    with open(f"data/{callback.from_user.id}_data_links.json", "r") as file:
+        data = json.loads(file.read())
     text = await get_params(data[choosed_producer])
     await state.update_data(choosed_producer=choosed_producer)
     await state.set_state(SGetDetail.choose_item)
@@ -195,5 +199,16 @@ async def get_photo_pay(message: types.Message,
 @detail_router.message(SGetDetail.photo_pay, F.photo)
 async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bot):
 
+    state_data = await state.get_data()
     channel_id = await DatabaseAPI.get_channel_id()
-    print(message)
+    photo_id = message.photo[-1].file_id
+    await bot.send_photo(
+        chat_id=channel_id,
+        photo=photo_id,
+        caption=state_data["choosed_detail"],
+        reply_markup=menu.key_accept_order(user_id=message.from_user.id)
+    )
+
+    await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
+                         reply_markup=menu.go_menu())
+    await state.clear()

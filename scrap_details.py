@@ -75,6 +75,28 @@ def get_session(username: str, password: str) -> requests.Session or None:
     return None
 
 
+def get_links(article: str, username: str, password: str) -> dict:
+    result = {}
+    session = get_session(username, password)
+    links = get_links_by_article(session, article)
+
+    for link in links:
+        result[link] = {"Названия бренда": get_attr_from_link(link, "brand_title")}
+
+    return result
+
+
+def items(username: str, password: str, link: str) -> dict:
+    result = {}
+    session = get_session(username, password)
+    # print(links)
+
+    data = get_data_by_link(session, link)
+    if data: result[link] = data
+
+    return result
+
+
 def start_parser(article: str, username: str, password: str) -> dict | bool:
     result = {}
     print("Начал искать")

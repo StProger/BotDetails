@@ -2,7 +2,7 @@ from config import TOKEN_DIRECTUS, DIRECTUS_API_URL
 
 import aiohttp
 
-from scrap_details import start_parser
+from scrap_details import start_parser, get_links, items
 
 import json
 
@@ -83,9 +83,8 @@ class DatabaseAPI(object):
         print(data)
         return data["data"][0]["value"]
 
-
     @staticmethod
-    async def get_data_for_articul(telegram_id, article):
+    async def get_links(article, telegram_id):
 
         BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
 
@@ -103,16 +102,68 @@ class DatabaseAPI(object):
             response = await session.get(url=url_password)
             data = await response.json()
         password = data["data"][0]["value"]
-        result = start_parser(article=article,
-                              username=login,
-                              password=password)
-        if result is None or result == False:
+        links = get_links(article=article, username=login, password=password)
+        if links is None or links == {}:
             return False
         else:
-            with open(f"data/{telegram_id}_data.json", "w") as file:
-
-                json.dump(result, file, ensure_ascii=False, indent=4)
+            with open(f"data/{telegram_id}_data_links.json", "w") as file:
+                json.dump(links, file, ensure_ascii=False, indent=4)
             return True
+
+    @staticmethod
+    async def get_data_by_link(telegram_id, link):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url_login = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=login"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url_login)
+            data = await response.json()
+        login = data["data"][0]["value"]
+        url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url_password)
+            data = await response.json()
+        password = data["data"][0]["value"]
+        result = items(username=login, password=password, link=link)
+        with open(f"data/{telegram_id}_data.json", "w") as file:
+            json.dump(result, file, ensure_ascii=False, indent=4)
+
+
+
+    # @staticmethod
+    # async def get_data_for_articul(telegram_id, article):
+    #
+    #     BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+    #
+    #     headers = {
+    #         'Authorization': BEARER_TOKEN
+    #     }
+    #
+    #     url_login = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=login"
+    #     async with aiohttp.ClientSession(headers=headers) as session:
+    #         response = await session.get(url=url_login)
+    #         data = await response.json()
+    #     login = data["data"][0]["value"]
+    #     url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
+    #     async with aiohttp.ClientSession(headers=headers) as session:
+    #         response = await session.get(url=url_password)
+    #         data = await response.json()
+    #     password = data["data"][0]["value"]
+    #     result = start_parser(article=article,
+    #                           username=login,
+    #                           password=password)
+    #     if result is None or result == False:
+    #         return False
+    #     else:
+    #         with open(f"data/{telegram_id}_data.json", "w") as file:
+    #
+    #             json.dump(result, file, ensure_ascii=False, indent=4)
+    #         return True
 
     @staticmethod
     async def get_percent():

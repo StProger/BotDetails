@@ -111,3 +111,9 @@ def key_photo_pay():
     builder = InlineKeyboardBuilder()
     builder.button(text="Меню", callback_data="go_menu")
     return builder.as_markup()
+
+
+def key_accept_order(user_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Принять", callback_data=f"accept_{user_id}")
+    return builder.as_markup()
