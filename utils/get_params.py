@@ -72,7 +72,7 @@ async def get_params_one_detail(item, state: FSMContext):
             f"<b>МАРКА</b> - {item['Марка']}\n" \
             f"<b>Цена</b> - {int(price_item)} руб\n" \
             f"<b>Время доставки</b> - {item['Время доставки']}\n" \
-            f"<b>Склад</b> - {item['Склад']}"
+            f"<b>Склад</b> - {item['Склад']}\n"
     if refund:
         text += "<b>ВОЗВРАТ</b> - Возможен\n"
         if official_seller:
