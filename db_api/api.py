@@ -159,3 +159,33 @@ class DatabaseAPI(object):
             response = await session.get(url=url)
             data = await response.json()
         return data["data"][0]["value"]
+
+    @staticmethod
+    async def get_card():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=card"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["value"]
+
+    @staticmethod
+    async def get_channel_id():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=channel"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["value"]

@@ -21,6 +21,7 @@ class SGetDetail(StatesGroup):
     order = State()
     point_pickup = State()
     contacts = State()
+    photo_pay = State()
 
 
 @detail_router.callback_query(F.data == "get_detail_menu")
@@ -185,4 +186,14 @@ async def get_photo_pay(message: types.Message,
     await state.update_data(phone=contact.phone_number, name=contact.first_name)
     state_data = await state.get_data()
     price = state_data["price_detail"]
-    await message.answer(f"Отправьте {int(price)} рублей на карту XXXXXXX и пришлите скриншот оплаты.")
+    card = await DatabaseAPI.get_card()
+    await state.set_state(SGetDetail.photo_pay)
+    await message.answer(f"Отправьте {int(price)} рублей на карту {card} и пришлите скриншот оплаты.",
+                         reply_markup=menu.key_photo_pay())
+
+
+@detail_router.message(SGetDetail.photo_pay, F.photo)
+async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bot):
+
+    channel_id = await DatabaseAPI.get_channel_id()
+    print(message)

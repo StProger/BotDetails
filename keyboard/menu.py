@@ -105,3 +105,9 @@ def key_get_contacts():
     keyboard.one_time_keyboard = True
     return keyboard
 
+
+def key_photo_pay():
+
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Меню", callback_data="go_menu")
+    return builder.as_markup()
