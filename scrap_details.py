@@ -81,7 +81,8 @@ def get_links(article: str, username: str, password: str) -> dict:
     links = get_links_by_article(session, article)
 
     for link in links:
-        result[link] = {"Названия бренда": get_attr_from_link(link, "brand_title")}
+        if get_attr_from_link(link, "brand_title") != None:
+            result[link] = {"Названия бренда": get_attr_from_link(link, "brand_title")}
 
     return result
 
