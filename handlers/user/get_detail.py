@@ -330,6 +330,10 @@ async def send_photo_to_admin(message: types.Message,
         )
     except:
         pass
+    try:
+        await message.delete()
+    except:
+        pass
     await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
                          reply_markup=menu.go_menu())
     await state.clear()
