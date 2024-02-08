@@ -83,6 +83,7 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
         if i == int(callback.data):
             choosed_producer = key
             break
+    print(choosed_producer)
     await DatabaseAPI.get_data_by_link(telegram_id=callback.from_user.id, link=choosed_producer)
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
