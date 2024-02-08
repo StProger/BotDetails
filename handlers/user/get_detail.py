@@ -62,7 +62,8 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
 
         names = []
         for key in data.keys():
-            names.append(data[key]["Названия бренда"])
+            if data[key]["Названия бренда"] != "-":
+                names.append(data[key]["Названия бренда"])
         await clock_message.delete()
         await message.delete()
         await message.answer(
@@ -85,6 +86,11 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
     await DatabaseAPI.get_data_by_link(telegram_id=callback.from_user.id, link=choosed_producer)
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
+    if data == {}:
+        await callback.answer(
+            "У данного производителя нет деталей с таким артикулом в наличии, выберите другого производителя."
+        )
+        return
     text = await get_params(data[choosed_producer])
     await state.update_data(choosed_producer=choosed_producer)
     await state.set_state(SGetDetail.choose_item)
