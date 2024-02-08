@@ -312,7 +312,7 @@ async def send_photo_to_admin(message: types.Message,
     caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
-        f"Имя: {state_data['name']}" \
+        f"Имя: {state_data['name']}\n" \
         f"Комментарий к заказу: {note}"
     result = await DatabaseAPI.add_order_to_db(user_id=message.from_user.id,
                                                state_data=await state.get_data())

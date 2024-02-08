@@ -221,8 +221,8 @@ class DatabaseAPI(object):
         }
         body = {
             "user": user_id,
-            "product": state_data["choosed_detail"],
-            "note": state_data.get("note"),
+            "product": state_data["choosed_detail"].replace("<b>", "").replace("</b>", ""),
+            "note": state_data.get("note", ""),
             "no_percent_price": state_data["old_price"],
             "percent_price": state_data["price_detail"],
             "profit_sum": int(state_data["price_detail"] - state_data["old_price"]),
@@ -295,7 +295,7 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
         body = {
-            "approve": True
+            "approved": True
         }
 
         url = f"{DIRECTUS_API_URL}/items/autogait_orders/{id_order}"
