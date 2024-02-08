@@ -120,7 +120,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
 
     choose_detail = data[choosed_producer][int(callback.data)]
 
-    text = await get_params_one_detail(item=choose_detail, state=state)
+    text = await get_params_one_detail(item=choose_detail, state=state, link=choosed_producer)
     await state.update_data(choosed_detail=text)
     warning_text = await DatabaseAPI.get_warning_text()
     if warning_text:
@@ -233,12 +233,13 @@ async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bo
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
         f"Имя: {state_data['name']}"
-    await bot.send_photo(
+    mes = await bot.send_photo(
         chat_id=channel_id,
         photo=photo_id,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id)
     )
+    print(f"Ссылка на сообщение: {mes.get_url()}")
     try:
         await bot.delete_message(
             chat_id=message.from_user.id,
@@ -266,4 +267,4 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
         text=text_,
         reply_markup=menu.go_menu()
     )
-    await callback.message.edit_caption(caption="Заявка одобрена✅")
+    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅")
