@@ -94,6 +94,7 @@ def items(username: str, password: str, link: str) -> dict:
 
     data = get_data_by_link(session, link)
     if data: result[link] = data
+    print(result)
 
     return result
 
