@@ -276,7 +276,6 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-
         url = f"{DIRECTUS_API_URL}/items/autogait_users?filter[telegram_id][_eq]={user_id}"
         async with aiohttp.ClientSession(headers=headers) as session:
             result = await session.get(url=url)

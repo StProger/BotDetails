@@ -224,6 +224,7 @@ async def get_photo_pay(message: types.Message,
                         state: FSMContext,
                         bot: Bot):
     contact = message.contact
+    await DatabaseAPI.set_contact(phone=contact.phone_number, user_id=message.from_user.id)
     await state.update_data(phone=contact.phone_number, name=contact.first_name)
     state_data = await state.get_data()
     try:
