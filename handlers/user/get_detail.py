@@ -264,7 +264,6 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     text_ += result
     await bot.send_message(
         chat_id=user_id,
-        text=text_,
-        reply_markup=menu.go_menu()
+        text=text_
     )
     await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅")
