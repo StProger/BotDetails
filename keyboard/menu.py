@@ -113,7 +113,19 @@ def key_photo_pay():
     return builder.as_markup()
 
 
-def key_accept_order(user_id):
+def key_accept_order(user_id, id_order):
     builder = InlineKeyboardBuilder()
-    builder.button(text="Принять", callback_data=f"accept_{user_id}")
+    builder.button(text="Принять", callback_data=f"accept_{id_order}_{user_id}")
+    return builder.as_markup()
+
+
+def key_finish_order(user_id):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Завершить", callback_data=f"аштшыр_{user_id}")
+    return builder.as_markup()
+
+
+def key_skip_note():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Пропустить", callback_data=f"skip_note")
     return builder.as_markup()

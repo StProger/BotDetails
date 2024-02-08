@@ -65,8 +65,9 @@ async def get_params_one_detail(item, state: FSMContext, link):
         refund = True
     if official_seller and not any(link in item["Ссылка на метку склада"] for link in [refund_false_link, i3_link]):
         refund = True
+    old_price = int("".join(i for i in item["Цена"].split()[:-1]))
     price_item = float("".join(i for i in item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
-    await state.update_data(price_detail=price_item)
+    await state.update_data(price_detail=int(price_item), old_price=old_price)
     text += f"{item['Названия']}\n\n" \
             f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
             f"<b>МАРКА</b> - {item['Марка']}\n" \

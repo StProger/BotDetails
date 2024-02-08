@@ -24,6 +24,7 @@ class SGetDetail(StatesGroup):
     point_pickup = State()
     contacts = State()
     photo_pay = State()
+    note = State()
 
 
 @detail_router.callback_query(F.data == "get_detail_menu")
@@ -89,7 +90,8 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
         data = json.loads(file.read())
     if data == {}:
         await callback.answer(
-            "У данного производителя нет деталей с таким артикулом в наличии, выберите другого производителя."
+            "У данного производителя нет деталей с таким артикулом в наличии, выберите другого производителя.",
+            show_alert=True
         )
         return
     text = await get_params(data[choosed_producer])
@@ -195,6 +197,18 @@ async def back_to_detail(callback: types.CallbackQuery, state: FSMContext):
 async def get_contacts(callback: types.CallbackQuery,
                        state: FSMContext,
                        bot: Bot):
+    is_phone = await DatabaseAPI.check_phone(user_id=callback.from_user.id)
+    if is_phone[0]:
+        state_data = await state.get_data()
+        await state.update_data(phone=is_phone[1]["phone_number"], name=is_phone[1]["name"])
+        price = state_data["price_detail"]
+        card = await DatabaseAPI.get_card()
+        await state.set_state(SGetDetail.photo_pay)
+        mes_ = await callback.message.edit_text(
+            text=f"Отправьте {int(price)} рублей на карту <code>{card}</code> и пришлите скриншот оплаты.",
+            reply_markup=menu.key_photo_pay())
+        await state.update_data(mes_del=mes_.message_id)
+        return
     await state.set_state(SGetDetail.contacts)
     text = "Отправьте свои контактные данные для связи. Для этого нажмите кнопку ниже⬇️"
     await callback.message.delete()
@@ -203,6 +217,7 @@ async def get_contacts(callback: types.CallbackQuery,
         reply_markup=menu.key_get_contacts()
     )
     await state.update_data(mes_del=mes.message_id)
+
 
 @detail_router.message(SGetDetail.contacts)
 async def get_photo_pay(message: types.Message,
@@ -231,22 +246,83 @@ async def get_photo_pay(message: types.Message,
 
 
 @detail_router.message(SGetDetail.photo_pay, F.photo)
-async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bot):
+async def get_note(message: types.Message, state: FSMContext, bot: Bot):
 
     state_data = await state.get_data()
-    channel_id = await DatabaseAPI.get_channel_id()
     photo_id = message.photo[-1].file_id
+    await state.update_data(photo_id=photo_id)
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    mes = await message.answer("Напишите комментарий к заказу, либо пропустите этот шаг с помощью кнопки ниже⬇️",
+                               reply_markup=menu.key_skip_note())
+    await state.update_data(mes_del=mes.message_id)
+    await state.set_state(SGetDetail.note)
+    return
 
+
+@detail_router.callback_query(SGetDetail.note, F.data == "skip_note")
+async def send_photo_to_admin(callback: types.Message,
+                              state: FSMContext,
+                              bot: Bot):
+    state_data = await state.get_data()
+    channel_id = await DatabaseAPI.get_channel_id()
+    photo_id = state_data["photo_id"]
     caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
         f"Имя: {state_data['name']}"
+    result = await DatabaseAPI.add_order_to_db(user_id=callback.from_user.id,
+                                               state_data=await state.get_data())
+    id_order = result["id"]
     mes = await bot.send_photo(
         chat_id=channel_id,
         photo=photo_id,
         caption=caption,
-        reply_markup=menu.key_accept_order(user_id=message.from_user.id)
+        reply_markup=menu.key_accept_order(user_id=callback.from_user.id, id_order=id_order)
     )
+    await DatabaseAPI.update_url_order(id_order=id_order, link=mes.get_url())
+    print(f"Ссылка на сообщение: {mes.get_url()}")
+    try:
+        await bot.delete_message(
+            chat_id=callback.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    await callback.message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
+                                  reply_markup=menu.go_menu())
+    await state.clear()
+
+
+@detail_router.message(SGetDetail.note)
+async def send_photo_to_admin(message: types.Message,
+                              state: FSMContext,
+                              bot: Bot):
+    state_data = await state.get_data()
+    channel_id = await DatabaseAPI.get_channel_id()
+    note = message.text
+    await state.update_data(note=note)
+    photo_id = state_data["photo_id"]
+    caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
+        f"Клиент:\n" \
+        f"Телефон: {state_data['phone']}\n" \
+        f"Имя: {state_data['name']}" \
+        f"Комментарий к заказу: {note}"
+    result = await DatabaseAPI.add_order_to_db(user_id=message.from_user.id,
+                                               state_data=await state.get_data())
+    id_order = result["id"]
+    mes = await bot.send_photo(
+        chat_id=channel_id,
+        photo=photo_id,
+        caption=caption,
+        reply_markup=menu.key_accept_order(user_id=message.from_user.id, id_order=id_order)
+    )
+    await DatabaseAPI.update_url_order(id_order=id_order, link=mes.get_url())
     print(f"Ссылка на сообщение: {mes.get_url()}")
     try:
         await bot.delete_message(
@@ -264,6 +340,8 @@ async def send_photo_to_admin(message: types.Message, state: FSMContext, bot: Bo
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
+    id_order = callback.data.split("_")[-2]
+    await DatabaseAPI.update_approve(id_order=id_order)
     text = callback.message.caption
     pattern = re.compile(r'АРТИКУЛ.*?Склад', re.DOTALL)
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n" \
@@ -274,4 +352,23 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
         chat_id=user_id,
         text=text_
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅")
+    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅",
+                                        reply_markup=menu.key_finish_order(user_id=user_id))
+
+
+@detail_router.callback_query(F.data.contains("finish_"))
+async def finish_order(callback: types.CallbackQuery, bot: Bot):
+
+    user_id = callback.data.split("_")[-1]
+
+    text = callback.message.caption
+    pattern = re.compile(r'АРТИКУЛ.*?Склад', re.DOTALL)
+    text_ = "<b>‼ВАШ ЗАКАЗ ВЫПОЛНЕН‼</b>\n\n" \
+            "ТОВАР:\n\n"
+    result = re.search(pattern, text).group(0).replace("Склад", "").strip()
+    text_ += result
+    await bot.send_message(
+        chat_id=user_id,
+        text=text_
+    )
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
