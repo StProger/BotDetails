@@ -233,7 +233,8 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.post(url=url, json=body)
             data = await response.json()
-        return data["data"][0]
+            print(data)
+        return data["data"]
 
     @staticmethod
     async def update_url_order(id_order, link):
