@@ -85,5 +85,5 @@ async def get_params_one_detail(item, state: FSMContext, link):
         if not (item["original"]):
             text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
     text += f"<b>Склад</b> - {item['Склад']}\n"
-    text += f"<b>Ссылка</b> - {link}"
+    text += f"<b>Ссылка</b> - {link}\n"
     return text
