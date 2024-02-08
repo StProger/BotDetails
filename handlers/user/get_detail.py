@@ -108,7 +108,8 @@ async def get_producer(callback: types.CallbackQuery, state: FSMContext):
 
     names = []
     for key in data.keys():
-        names.append(data[key]["Названия бренда"])
+        if data[key]["Названия бренда"] != "-":
+            names.append(data[key]["Названия бренда"])
     await callback.message.edit_text(
         text="Выберите производителя",
         reply_markup=menu.choose_producer_key(names=names)

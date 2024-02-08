@@ -25,7 +25,7 @@ def choose_producer_key(names: list):
 
     builder = InlineKeyboardBuilder()
     for i, name in enumerate(names):
-        builder.button(text=name, callback_data=str(i))
+        builder.button(text=name, callback_data=str(i+1))
     builder.adjust(3)
     builder.row(
         InlineKeyboardButton(
