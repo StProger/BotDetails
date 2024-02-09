@@ -33,7 +33,7 @@ async def get_params(data: list) -> str:
                 f"<b>Цена</b> - {int(price_item)} руб\n" \
                 f"<b>Время доставки</b> - {item['Время доставки']}\n"
 
-        text += "<b>ВОЗВРАТ</b> - Возможен\n"
+        #text += "<b>ВОЗВРАТ</b> - Возможен\n"
         if official_seller:
             text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
         if not (item["original"]):
