@@ -3,6 +3,7 @@ import re
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram import md
 
 from keyboard import menu
 
@@ -274,10 +275,11 @@ async def send_photo_to_admin(callback: types.Message,
     caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
-        f"Имя: {state_data['name']}"
+        f"Имя: {state_data['name']}\n\n"
     result = await DatabaseAPI.add_order_to_db(user_id=callback.from_user.id,
                                                state_data=await state.get_data())
     id_order = result["id"]
+    caption += f"Номер заказа: #{id_order}"
     mes = await bot.send_photo(
         chat_id=channel_id,
         photo=photo_id,
@@ -311,10 +313,11 @@ async def send_photo_to_admin(message: types.Message,
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
         f"Имя: {state_data['name']}\n" \
-        f"Комментарий к заказу: {note}"
+        f"Комментарий к заказу: {note}\n\n"
     result = await DatabaseAPI.add_order_to_db(user_id=message.from_user.id,
                                                state_data=await state.get_data())
     id_order = result["id"]
+    caption += f"Номер заказа: {id_order}"
     mes = await bot.send_photo(
         chat_id=channel_id,
         photo=photo_id,
