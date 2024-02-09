@@ -128,7 +128,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
         data = json.loads(file.read())
 
     choose_detail = data[choosed_producer][int(callback.data)]
-
+    await state.update_data(choose_detail=choose_detail)
 
     warning_text = await DatabaseAPI.get_warning_text()
     if warning_text:
@@ -200,7 +200,7 @@ async def get_contacts(callback: types.CallbackQuery,
     await state.update_data(address=address)
     state_data = await state.get_data()
     choosed_producer = state_data["choosed_producer"]
-    text = await get_params_one_detail(item=choose_detail, state=state, link=choosed_producer,
+    text = await get_params_one_detail(item=state_data["choose_detail"], state=state, link=choosed_producer,
                                        adress=state_data["address"])
     await state.update_data(choosed_detail=text)
     is_phone = await DatabaseAPI.check_phone(user_id=callback.from_user.id)
