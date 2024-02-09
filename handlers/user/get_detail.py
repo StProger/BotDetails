@@ -129,8 +129,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
 
     choose_detail = data[choosed_producer][int(callback.data)]
 
-    text = await get_params_one_detail(item=choose_detail, state=state, link=choosed_producer)
-    await state.update_data(choosed_detail=text)
+
     warning_text = await DatabaseAPI.get_warning_text()
     if warning_text:
         await state.set_state(SGetDetail.order)
@@ -196,6 +195,14 @@ async def back_to_detail(callback: types.CallbackQuery, state: FSMContext):
 async def get_contacts(callback: types.CallbackQuery,
                        state: FSMContext,
                        bot: Bot):
+    id_point = callback.data
+    address = await DatabaseAPI.get_adress_point(id_point=id_point)
+    await state.update_data(address=address)
+    state_data = await state.get_data()
+    choosed_producer = state_data["choosed_producer"]
+    text = await get_params_one_detail(item=choose_detail, state=state, link=choosed_producer,
+                                       adress=state_data["address"])
+    await state.update_data(choosed_detail=text)
     is_phone = await DatabaseAPI.check_phone(user_id=callback.from_user.id)
     if is_phone[0]:
         state_data = await state.get_data()

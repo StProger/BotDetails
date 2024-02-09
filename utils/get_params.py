@@ -43,7 +43,7 @@ async def get_params(data: list) -> str:
     return text
 
 
-async def get_params_one_detail(item, state: FSMContext, link):
+async def get_params_one_detail(item, state: FSMContext, link, adress):
 
     official_seller_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/ok.gif"
     # refund_false_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/B_red.gif"
@@ -69,9 +69,10 @@ async def get_params_one_detail(item, state: FSMContext, link):
             f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
             f"<b>МАРКА</b> - {item['Марка']}\n" \
             f"<b>Цена</b> - {int(price_item)} руб\n" \
-            f"<b>Время доставки</b> - {item['Время доставки']}\n"
+            f"<b>Время доставки</b> - {item['Время доставки']}\n" \
+            f"<b>Адрес доставки</b> - {adress}\n"
 
-    text += "<b>ВОЗВРАТ</b> - Возможен\n"
+    # text += "<b>ВОЗВРАТ</b> - Возможен\n"
     if official_seller:
         text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
     if not (item["original"]):

@@ -302,4 +302,19 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             await session.patch(url=url, json=body)
 
+    @staticmethod
+    async def get_adress_point(id_point):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_pickup_points?filter[id][_eq]={id_point}"
+
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["address"]
 
