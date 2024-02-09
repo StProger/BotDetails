@@ -60,5 +60,6 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
         photo=types.FSInputFile("photo/logo.jpg"),
         reply_markup=menu.menu_key()
     )
+    await callback.answer()
 
 
