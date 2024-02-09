@@ -387,3 +387,22 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
         reply_markup=menu.key_menu_after_success()
     )
     await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
+
+
+@detail_router.callback_query(F.data.contains("break_"))
+async def break_order(callback: types.CallbackQuery, bot: Bot):
+
+    user_id = callback.data.split("_")[-1]
+
+    text = callback.message.caption
+    pattern = re.compile(r'АРТИКУЛ.*?Склад', re.DOTALL)
+    text_ = "<b>‼ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ‼</b>\n\n" \
+            "ТОВАР:\n\n"
+    result = re.search(pattern, text).group(0).replace("Склад", "").strip()
+    text_ += result
+    await bot.send_message(
+        chat_id=user_id,
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
+    )
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ❌")

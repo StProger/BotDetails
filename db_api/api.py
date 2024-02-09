@@ -318,3 +318,17 @@ class DatabaseAPI(object):
             data = await response.json()
         return data["data"][0]["address"]
 
+    @staticmethod
+    async def get_days():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=allowance_days"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["value"]

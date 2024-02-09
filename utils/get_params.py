@@ -13,6 +13,7 @@ async def get_params(data: list) -> str:
     # refund_true_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/B_green.gif"
     # i3_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/i3.gif"
     percent = await DatabaseAPI.get_percent()
+    days = int(await DatabaseAPI.get_days())
     text = ""
     for i, item in enumerate(data):
         # refund = False
@@ -31,7 +32,7 @@ async def get_params(data: list) -> str:
                 f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
                 f"<b>МАРКА</b> - {item['Марка']}\n" \
                 f"<b>Цена</b> - {int(price_item)} руб\n" \
-                f"<b>Время доставки</b> - {item['Время доставки']}\n"
+                f"<b>Время доставки</b> - {int(item['Время доставки'].split()[0]) + days} д.\n"
 
         #text += "<b>ВОЗВРАТ</b> - Возможен\n"
         if official_seller:
@@ -53,6 +54,7 @@ async def get_params_one_detail(item, state: FSMContext, link, adress):
     text = ""
     # refund = False
     official_seller = False
+    days = int(await DatabaseAPI.get_days())
 
     # if any(link in item["Ссылка на метку склада"] for link in [refund_false_link, i3_link]):
     #     refund = False
@@ -69,7 +71,7 @@ async def get_params_one_detail(item, state: FSMContext, link, adress):
             f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
             f"<b>МАРКА</b> - {item['Марка']}\n" \
             f"<b>Цена</b> - {int(price_item)} руб\n" \
-            f"<b>Время доставки</b> - {item['Время доставки']}\n" \
+            f"<b>Время доставки</b> - {int(item['Время доставки'].split()[0]) + days} д.\n" \
             f"<b>Адрес доставки</b> - {adress}\n"
 
     # text += "<b>ВОЗВРАТ</b> - Возможен\n"
