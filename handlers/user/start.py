@@ -47,3 +47,18 @@ async def cmd_start(message: types.Message, bot: Bot, state: FSMContext):
     )
 
 
+@start_router.callback_query(F.data == "go_menu_w")
+async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
+    await state.clear()
+    if os.path.exists(f"data/{callback.from_user.id}_data.json"):
+        os.remove(f"data/{callback.from_user.id}_data.json")
+    if os.path.exists(f"data/{callback.from_user.id}_data_links.json"):
+        os.remove(f"data/{callback.from_user.id}_data_links.json")
+
+    await bot.send_photo(
+        chat_id=callback.from_user.id,
+        photo=types.FSInputFile("photo/logo.jpg"),
+        reply_markup=menu.menu_key()
+    )
+
+

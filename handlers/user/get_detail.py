@@ -363,7 +363,8 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     text_ += result
     await bot.send_message(
         chat_id=user_id,
-        text=text_
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
     )
     await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅",
                                         reply_markup=menu.key_finish_order(user_id=user_id))
@@ -382,6 +383,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
     text_ += result
     await bot.send_message(
         chat_id=user_id,
-        text=text_
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
     )
     await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")

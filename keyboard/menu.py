@@ -130,3 +130,9 @@ def key_skip_note():
     builder = InlineKeyboardBuilder()
     builder.button(text="Пропустить", callback_data=f"skip_note")
     return builder.as_markup()
+
+def key_menu_after_success():
+
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Меню", callback_data=f"go_menu_w")
+    return builder.as_markup()
