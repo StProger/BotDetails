@@ -6,6 +6,8 @@ from keyboard import menu
 
 import os
 
+from filters import ChatTypeFilter
+
 
 start_router = Router()
 
@@ -62,4 +64,8 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     )
     await callback.answer()
 
+
+@start_router.message(ChatTypeFilter(chat_type="supergroup"))
+async def sss(message: types.Message):
+    print(message)
 
