@@ -20,6 +20,7 @@ async def set_number_order(message: types.Message, bot: Bot):
         # order_id_message = message.reply_to_message.message_id
         url_message = message.reply_to_message.get_url()
         order = await DatabaseAPI.get_order_by_url(url=url_message)
+        order_id = order["id"]
         user_id = order["user"]
 
         text = message.reply_to_message.caption
@@ -33,5 +34,8 @@ async def set_number_order(message: types.Message, bot: Bot):
             text=text_,
             reply_markup=menu.key_menu_after_success()
         )
-        await message.reply_to_message.edit_caption(caption=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}")
+        await message.reply_to_message.edit_caption(caption=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
+                                                    reply_markup=menu.key_after_set_number(user_id=user_id,
+                                                                                           order_id=order_id,
+                                                                                           caption=text))
 

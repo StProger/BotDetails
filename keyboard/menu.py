@@ -133,8 +133,22 @@ def key_skip_note():
     builder.button(text="Пропустить", callback_data=f"skip_note")
     return builder.as_markup()
 
+
 def key_menu_after_success():
 
     builder = InlineKeyboardBuilder()
     builder.button(text="Меню", callback_data=f"go_menu_w")
     return builder.as_markup()
+
+
+def key_after_set_number(user_id, order_id, caption):
+
+    builder = InlineKeyboardBuilder()
+    if "Заявка одобрена✅" not in caption:
+        builder.button(text="Принять", callback_data=f"accept_{order_id}_{user_id}")
+        return builder.as_markup()
+    else:
+        builder.button(text="Завершить", callback_data=f"finish_{user_id}")
+        builder.button(text="Заказ отменён поставщиком", callback_data=f"break_{user_id}")
+        builder.adjust(1)
+        return builder.as_markup()
