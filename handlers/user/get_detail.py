@@ -294,6 +294,7 @@ async def send_photo_to_admin(callback: types.Message,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=callback.from_user.id, id_order=id_order)
     )
+    print(f"Ссылка на сообщение: {mes.get_url()}")
     await DatabaseAPI.update_url_order(id_order=id_order, link=mes.get_url())
     print(f"Ссылка на сообщение: {mes.get_url()}")
     try:
