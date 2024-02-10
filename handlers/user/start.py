@@ -63,9 +63,3 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
         reply_markup=menu.menu_key()
     )
     await callback.answer()
-
-
-@start_router.message()
-async def sss(message: types.Message):
-    print(message)
-

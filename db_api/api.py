@@ -205,7 +205,7 @@ class DatabaseAPI(object):
             'Authorization': BEARER_TOKEN
         }
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=channel"
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=group"
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
@@ -332,3 +332,18 @@ class DatabaseAPI(object):
             response = await session.get(url=url)
             data = await response.json()
         return data["data"][0]["value"]
+
+    @staticmethod
+    async def get_order_by_url(url):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_orders?filter[order_link][_eq]={url}"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]

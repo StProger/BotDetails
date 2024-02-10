@@ -13,6 +13,7 @@ import json
 
 from utils.get_params import get_params, get_params_one_detail
 
+
 detail_router = Router()
 
 
@@ -277,7 +278,7 @@ async def send_photo_to_admin(callback: types.Message,
                               state: FSMContext,
                               bot: Bot):
     state_data = await state.get_data()
-    channel_id = await DatabaseAPI.get_channel_id()
+    group_id = await DatabaseAPI.get_channel_id()
     photo_id = state_data["photo_id"]
     caption = "<b>❗️НОВАЯ ЗАЯВКА❗️\n</b>" + state_data["choosed_detail"] + \
         f"Клиент:\n" \
@@ -288,7 +289,7 @@ async def send_photo_to_admin(callback: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
     mes = await bot.send_photo(
-        chat_id=channel_id,
+        chat_id=group_id,
         photo=photo_id,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=callback.from_user.id, id_order=id_order)
@@ -312,7 +313,7 @@ async def send_photo_to_admin(message: types.Message,
                               state: FSMContext,
                               bot: Bot):
     state_data = await state.get_data()
-    channel_id = await DatabaseAPI.get_channel_id()
+    group_id = await DatabaseAPI.get_channel_id()
     note = message.text
     await state.update_data(note=note)
     photo_id = state_data["photo_id"]
@@ -326,7 +327,7 @@ async def send_photo_to_admin(message: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: {id_order}"
     mes = await bot.send_photo(
-        chat_id=channel_id,
+        chat_id=group_id,
         photo=photo_id,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id, id_order=id_order)
@@ -405,4 +406,5 @@ async def break_order(callback: types.CallbackQuery, bot: Bot):
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
+
     await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ❌")
