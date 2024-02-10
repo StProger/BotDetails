@@ -17,5 +17,6 @@ start_router.message.middleware(CheckUser())
 main_router_user.include_routers(
     start_router,
     terms_router,
-    detail_router
+    detail_router,
+    grorup_router
 )
