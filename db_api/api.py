@@ -234,11 +234,11 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.post(url=url, json=body)
             data = await response.json()
-            print(f"Данные о добавлении заказа: {data}")
-        await bot.send_message(
-            chat_id=1878562358,
-            text=str(data)
-        )
+        print(f"Данные о добавлении заказа: {data}")
+        # await bot.send_message(
+        #     chat_id=1878562358,
+        #     text=str(data)
+        # )
         return data["data"]
 
     @staticmethod
