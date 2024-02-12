@@ -239,7 +239,10 @@ class DatabaseAPI(object):
         #     chat_id=1878562358,
         #     text=str(data)
         # )
-        return data["data"]
+        try:
+            return data["data"]
+        except Exception as ex:
+            print(f"Ошибка: {ex}")
 
     @staticmethod
     async def update_url_order(id_order, link):
