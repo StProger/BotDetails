@@ -25,8 +25,7 @@ async def set_number_order(message: types.Message, bot: Bot):
 
         text = message.reply_to_message.caption
         pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
-        text_ = f"<b>ВАШ НОМЕР ЗАКАЗА {number_order}</b>\n\n" \
-                "ТОВАР:\n\n"
+        text_ = f"<b>ВАШ НОМЕР ЗАКАЗА {number_order}</b>\n\n"
         result = re.search(pattern, text).group(0).replace("Склад", "").strip()
         text_ += result
         await bot.send_message(

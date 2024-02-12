@@ -359,9 +359,9 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     id_order = callback.data.split("_")[-2]
     await DatabaseAPI.update_approve(id_order=id_order)
     text = callback.message.caption
+    print(text)
     pattern = re.compile(r'Товар:.*?Склад', re.DOTALL)
-    text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n" \
-           "ТОВАР:\n\n"
+    text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
     result = re.search(pattern, text).group(0).replace("Склад", "").strip()
     print(result)
     text_ += result
@@ -380,9 +380,9 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
 
     text = callback.message.caption
+    print(text)
     pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
-    text_ = "<b>ВАШ ЗАКАЗ ДОСТАВЛЕН В ПУНКТ ВЫДАЧИ</b>\n\n" \
-            "ТОВАР:\n\n"
+    text_ = "<b>ВАШ ЗАКАЗ ДОСТАВЛЕН В ПУНКТ ВЫДАЧИ</b>\n\n"
     result = re.search(pattern, text).group(0).replace("Склад", "").strip()
     print(result)
     text_ += result
@@ -400,9 +400,9 @@ async def break_order(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
 
     text = callback.message.caption
+    print(text)
     pattern = re.compile(r'Товар:.*?Склад', re.DOTALL)
-    text_ = "<b>ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ</b>\n\n" \
-            "ТОВАР:\n\n"
+    text_ = "<b>ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ</b>\n\n"
     result = re.search(pattern, text).group(0).replace("Склад", "").strip()
     print(result)
     text_ += result
