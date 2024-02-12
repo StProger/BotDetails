@@ -285,7 +285,7 @@ async def send_photo_to_admin(callback: types.Message,
         f"Телефон: {state_data['phone']}\n" \
         f"Имя: {state_data['name']}\n\n"
     result = await DatabaseAPI.add_order_to_db(user_id=callback.from_user.id,
-                                               state_data=await state.get_data())
+                                               state_data=await state.get_data(), bot=bot)
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
     mes = await bot.send_photo(
@@ -325,7 +325,7 @@ async def send_photo_to_admin(message: types.Message,
         f"Имя: {state_data['name']}\n" \
         f"Комментарий к заказу: {note}\n\n"
     result = await DatabaseAPI.add_order_to_db(user_id=message.from_user.id,
-                                               state_data=await state.get_data())
+                                               state_data=await state.get_data(), bot=bot)
     id_order = result["id"]
     caption += f"Номер заказа: {id_order}"
     mes = await bot.send_photo(
