@@ -235,8 +235,8 @@ class DatabaseAPI(object):
             response = await session.post(url=url, json=body)
             data = await response.json()
             print(f"Данные о добавлении заказа: {data}")
-        print(data)
-        # return data["data"]
+
+        return data["data"]
 
     @staticmethod
     async def update_url_order(id_order, link):
