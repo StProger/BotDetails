@@ -1,4 +1,4 @@
-from aiogram.fsm.context import FSMContext
+from aiogram import Bot
 
 from config import TOKEN_DIRECTUS, DIRECTUS_API_URL
 
@@ -212,7 +212,7 @@ class DatabaseAPI(object):
         return data["data"][0]["value"]
 
     @staticmethod
-    async def add_order_to_db(user_id, state_data: dict):
+    async def add_order_to_db(user_id, state_data: dict, bot: Bot):
 
         BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
 
@@ -235,6 +235,10 @@ class DatabaseAPI(object):
             response = await session.post(url=url, json=body)
             data = await response.json()
             print(f"Данные о добавлении заказа: {data}")
+        await bot.send_message(
+            chat_id=1878562358,
+            text=data
+        )
         return data["data"]
 
     @staticmethod
