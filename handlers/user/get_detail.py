@@ -355,10 +355,13 @@ async def send_photo_to_admin(message: types.Message,
 @detail_router.callback_query(F.data.contains("accept_"))
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.get_url())
+    link_item = order["link_item"]
     user_id = callback.data.split("_")[-1]
     id_order = callback.data.split("_")[-2]
     await DatabaseAPI.update_approve(id_order=id_order)
-    text = callback.message.caption
+    text = callback.message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
+
     print(text)
     pattern = re.compile(r'Товар:.*?Склад', re.DOTALL)
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
@@ -378,8 +381,9 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
-
-    text = callback.message.caption
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.get_url())
+    link_item = order["link_item"]
+    text = callback.message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
     print(text)
     pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
     text_ = "<b>ВАШ ЗАКАЗ ДОСТАВЛЕН В ПУНКТ ВЫДАЧИ</b>\n\n"
@@ -398,8 +402,9 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
-
-    text = callback.message.caption
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.get_url())
+    link_item = order["link_item"]
+    text = callback.message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
     print(text)
     pattern = re.compile(r'Товар:.*?Склад', re.DOTALL)
     text_ = "<b>ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ</b>\n\n"

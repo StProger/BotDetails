@@ -20,10 +20,11 @@ async def set_number_order(message: types.Message, bot: Bot):
         # order_id_message = message.reply_to_message.message_id
         url_message = message.reply_to_message.get_url()
         order = await DatabaseAPI.get_order_by_url(url=url_message)
+        link_item = order["link_item"]
         order_id = order["id"]
         user_id = order["user"]
 
-        text = message.reply_to_message.caption
+        text = message.reply_to_message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
         pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
         text_ = f"<b>ВАШ НОМЕР ЗАКАЗА {number_order}</b>\n\n"
         result = re.search(pattern, text).group(0).replace("Склад", "").strip()

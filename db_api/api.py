@@ -226,7 +226,8 @@ class DatabaseAPI(object):
             "no_percent_price": state_data["old_price"],
             "percent_price": state_data["price_detail"],
             "profit_sum": int(state_data["price_detail"] - state_data["old_price"]),
-            "approved": False
+            "approved": False,
+            "link_item": state_data["choosed_producer"]
         }
 
         url = f"{DIRECTUS_API_URL}/items/autogait_orders"
@@ -347,3 +348,4 @@ class DatabaseAPI(object):
             response = await session.get(url=url)
             data = await response.json()
         return data["data"][0]
+
