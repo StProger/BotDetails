@@ -67,12 +67,12 @@ async def get_params_one_detail(item, state: FSMContext, link, adress):
     old_price = int("".join(i for i in item["Цена"].split()[:-1]))
     price_item = float("".join(i for i in item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
     await state.update_data(price_detail=int(price_item), old_price=old_price)
-    text += f"{item['Названия']}\n\n" \
+    text += f"Товар: {item['Названия']}\n\n" \
             f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
             f"<b>МАРКА</b> - {item['Марка']}\n" \
             f"<b>Цена</b> - {int(price_item)} руб\n" \
             f"<b>Время доставки</b> - {int(item['Время доставки'].split()[0]) + days} д.\n" \
-            f"<b>Адрес доставки</b> - {adress}\n"
+            f"<b>Пункт самовывоза</b> - {adress}\n"
 
     # text += "<b>ВОЗВРАТ</b> - Возможен\n"
     if official_seller:
