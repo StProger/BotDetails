@@ -234,7 +234,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.post(url=url, json=body)
             data = await response.json()
-            print(data)
+            print(f"Данные о добавлении заказа: {data}")
         return data["data"]
 
     @staticmethod
