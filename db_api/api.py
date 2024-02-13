@@ -356,3 +356,19 @@ class DatabaseAPI(object):
             data = await response.json()
         return data["data"][0]
 
+    @staticmethod
+    async def update_order_number(order_number, order_id):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+        body = {
+            "order_number": order_number
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_orders/{order_id}"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            await session.patch(url=url, json=body)
+
