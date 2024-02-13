@@ -18,14 +18,14 @@ async def set_number_order(message: types.Message, bot: Bot):
         return
     else:
         if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.caption:
-            await message.answer("Данному заказу уже присвоен номер.")
+            await message.reply("Данному заказу уже присвоен номер.")
             return
         number_order = message.text
         # order_id_message = message.reply_to_message.message_id
-        url_message = message.reply_to_message.get_url()
+        url_message = message.reply_to_message.message_id
         group_id = await DatabaseAPI.get_channel_id()
-        link_message = f"https://t.me/c/{group_id}/{message.message_id}"
-        order = await DatabaseAPI.get_order_by_url(url=link_message)
+        #  = f"https://t.me/c/{group_id}/{message.message_id}"
+        order = await DatabaseAPI.get_order_by_url(url=url_message)
         link_item = order["link_item"]
         order_id = order["id"]
         user_id = order["user"]
