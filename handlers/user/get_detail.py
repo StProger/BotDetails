@@ -336,7 +336,7 @@ async def send_photo_to_admin(message: types.Message,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id, id_order=id_order)
     )
-    link_message = f"https://t.me/c/{str(group_id).replace('-', '')}/{mes.message_id}"
+    link_message = f"https://t.me/c/{group_id}/{mes.message_id}"
     await DatabaseAPI.update_url_order(id_order=id_order, link=link_message)
     print(f"Ссылка на сообщение: {mes.get_url(force_private=True)}")
     try:
@@ -358,7 +358,7 @@ async def send_photo_to_admin(message: types.Message,
 @detail_router.callback_query(F.data.contains("accept_"))
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     group_id = await DatabaseAPI.get_channel_id()
-    link_message = f"https://t.me/c/{str(group_id).replace('-', '')}/{callback.message.message_id}"
+    link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
     order = await DatabaseAPI.get_order_by_url(url=link_message)
     link_item = order["link_item"]
     user_id = callback.data.split("_")[-1]
@@ -386,7 +386,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
     group_id = await DatabaseAPI.get_channel_id()
-    link_message = f"https://t.me/c/{str(group_id).replace('-', '')}/{callback.message.message_id}"
+    link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
     order = await DatabaseAPI.get_order_by_url(url=link_message)
     link_item = order["link_item"]
     text = callback.message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
@@ -408,7 +408,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
     group_id = await DatabaseAPI.get_channel_id()
-    link_message = f"https://t.me/c/{str(group_id).replace('-', '')}/{callback.message.message_id}"
+    link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
     user_id = callback.data.split("_")[-1]
     order = await DatabaseAPI.get_order_by_url(url=link_message)
     link_item = order["link_item"]
