@@ -221,7 +221,7 @@ class DatabaseAPI(object):
         }
         body = {
             "user": user_id,
-            "product": state_data["choosed_detail"].replace("<b>", " ").replace("</b>", " "),
+            "product": state_data["choosed_detail"].replace("<b>", " ").replace("</b>", " ").replace(f"<b>Ссылка</b> - <a href='{state_data['choosed_producer']}'>Товар</a>", ""),
             "note": state_data.get("note", ""),
             "no_percent_price": state_data["old_price"],
             "percent_price": state_data["price_detail"],
