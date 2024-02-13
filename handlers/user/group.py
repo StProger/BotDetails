@@ -23,7 +23,9 @@ async def set_number_order(message: types.Message, bot: Bot):
         number_order = message.text
         # order_id_message = message.reply_to_message.message_id
         url_message = message.reply_to_message.get_url()
-        order = await DatabaseAPI.get_order_by_url(url=url_message)
+        group_id = await DatabaseAPI.get_channel_id()
+        link_message = f"https://t.me/c/{str(group_id).replace('-', '')}/{message.message_id}"
+        order = await DatabaseAPI.get_order_by_url(url=link_message)
         link_item = order["link_item"]
         order_id = order["id"]
         user_id = order["user"]
