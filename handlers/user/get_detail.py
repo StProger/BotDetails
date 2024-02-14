@@ -359,9 +359,7 @@ async def send_photo_to_admin(message: types.Message,
 
 @detail_router.callback_query(F.data.contains("accept_"))
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
-    print(callback.message.message_id)
-    print(callback.id)
-    print(callback.inline_message_id)
+
     group_id = await DatabaseAPI.get_channel_id()
     # link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
