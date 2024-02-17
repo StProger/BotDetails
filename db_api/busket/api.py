@@ -75,7 +75,7 @@ class Busket(object):
             for item in data["data"]:
                 builder.button(text=f"{item['product']['Названия']}", callback_data=f"drop_busket_{item['id']}")
                 text += f"{item['product']['Названия']}\n"
-                sum_ += item["price_with_percent"]
+                sum_ += int(item["price_with_percent"])
             text += f"\n" \
                     f"Сумма заказа: {sum_} руб."
             builder.adjust(3)
