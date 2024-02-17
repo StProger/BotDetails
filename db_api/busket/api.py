@@ -72,9 +72,9 @@ class Busket(object):
             data = await response.json()
             text = ""
             sum_ = 0
-            for item in data["data"]:
+            for index, item in enumerate(data["data"]):
                 builder.button(text=f"{item['product']['Названия']}", callback_data=f"drop_busket_{item['id']}")
-                text += f"{item['product']['Названия']}\n"
+                text += f"{index+1}. {item['product']['Названия']}\n"
                 sum_ += int(item["price_with_percent"])
             text += f"\n" \
                     f"Сумма заказа: {sum_} руб."
