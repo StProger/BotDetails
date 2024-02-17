@@ -9,8 +9,10 @@ def menu_key():
     builder.button(text="О магазине", callback_data="about_shop")
     builder.button(text="Заказать деталь", callback_data="get_detail_menu")
     builder.button(text="Гарантия и Возврат", callback_data="info_refund")
+    builder.button(text="Корзина", callback_data="get_basket")
     builder.adjust(1)
     return builder.as_markup()
+
 
 
 def go_menu():

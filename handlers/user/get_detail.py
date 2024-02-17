@@ -3,7 +3,7 @@ import re
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram import md
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from keyboard import menu
 
@@ -11,7 +11,7 @@ from db_api.api import DatabaseAPI
 
 import json
 
-from utils.get_params import get_params, get_params_one_detail
+from utils.get_params import get_params, get_params_one_detail, params_select_item
 
 
 detail_router = Router()
@@ -23,6 +23,7 @@ class SGetDetail(StatesGroup):
     choose_producer = State()
     choose_item = State()
     order = State()
+    order_only = State()
     point_pickup = State()
     contacts = State()
     photo_pay = State()
@@ -129,24 +130,34 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
         data = json.loads(file.read())
 
     choose_detail = data[choosed_producer][int(callback.data)]
-    await state.update_data(choose_detail=choose_detail)
 
-    warning_text = await DatabaseAPI.get_warning_text()
-    if warning_text:
-        await state.set_state(SGetDetail.order)
-        warning_text = warning_text
-        await callback.message.edit_text(
-            text=warning_text,
-            reply_markup=menu.key_order()
+    # Получаем описание выбранной детали
+    params_item = await params_select_item(item=choose_detail)
+    await state.update_data(choose_detail=choose_detail)
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Добавить в корзину", callback_data="add_to_busket")
+    builder.row(
+        types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Назад", callback_data="back_to_choose_detail"
+        ),
+        types.InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
         )
-    else:
-        await state.set_state(SGetDetail.point_pickup)
-        points = await DatabaseAPI.get_points()
-        text = "Выберите пункт самовывоза⬇️"
-        await callback.message.edit_text(
-            text=text,
-            reply_markup=menu.key_points(points=points)
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Ввести другой артикул", callback_data="get_detail_menu"
         )
+    )
+
+    await state.set_state(SGetDetail.order)
+    await callback.message.edit_text(
+        text=params_item,
+        reply_markup=builder.as_markup()
+    )
 
 
 @detail_router.callback_query(SGetDetail.order, F.data == "back_to_choose_detail")
@@ -166,6 +177,27 @@ async def back_to_choose_detail(callback: types.CallbackQuery, state: FSMContext
 
 
 @detail_router.callback_query(SGetDetail.order, F.data == "go_order")
+async def get_point(callback: types.CallbackQuery, state: FSMContext):
+
+    warning_text = await DatabaseAPI.get_warning_text()
+    if warning_text:
+        await state.set_state(SGetDetail.order_only)
+        warning_text = warning_text
+        await callback.message.edit_text(
+            text=warning_text,
+            reply_markup=menu.key_order()
+        )
+    else:
+        await state.set_state(SGetDetail.point_pickup)
+        points = await DatabaseAPI.get_points()
+        text = "Выберите пункт самовывоза⬇️"
+        await callback.message.edit_text(
+            text=text,
+            reply_markup=menu.key_points(points=points)
+        )
+
+
+@detail_router.callback_query(SGetDetail.order_only, F.data == "go_order")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
 
     await state.set_state(SGetDetail.point_pickup)

@@ -83,3 +83,29 @@ async def get_params_one_detail(item, state: FSMContext, link, adress):
     text += f"<b>Склад</b> - {item['Склад']}\n"
     text += f"<b>Ссылка</b> - <a href='{link}'>Товар</a>\n"
     return text
+
+
+async def params_select_item(item):
+
+    official_seller_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/ok.gif"
+    percent = await DatabaseAPI.get_percent()
+    days = int(await DatabaseAPI.get_days())
+    text = ""
+    official_seller = False
+
+    if official_seller_link in item["Ссылка на метку склада"]:
+        official_seller = True
+    price_item = float("".join(i for i in item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
+    text += f"{item['Названия']}\n\n" \
+            f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
+            f"<b>МАРКА</b> - {item['Марка']}\n" \
+            f"<b>Цена</b> - {int(price_item)} руб\n" \
+            f"<b>Время доставки</b> - {int(item['Время доставки'].split()[0]) + days} д.\n"
+
+    if official_seller:
+        text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
+    if not (item["original"]):
+        text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
+    text += "\n"
+
+    return text
