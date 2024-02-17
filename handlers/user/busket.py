@@ -34,7 +34,7 @@ class SBusket(StatesGroup):
     note = State()
 
 
-@busket_router.callback_query(SGetDetail.order, F.data == "add_to_busket")
+@busket_router.callback_query(SGetDetail.order, F.data.contains("add_to_busket"))
 async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
 
     state_data = await state.get_data()
