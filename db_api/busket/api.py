@@ -79,6 +79,11 @@ class Busket(object):
             text += f"\n" \
                     f"Сумма заказа: {sum_} руб."
             builder.adjust(3)
+            builder.row(
+                InlineKeyboardButton(
+                    text="Меню", callback_data="go_menu"
+                )
+            )
             return text, builder.as_markup()
 
     @classmethod
