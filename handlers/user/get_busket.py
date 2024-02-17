@@ -32,7 +32,7 @@ async def content_busket(callback: types.CallbackQuery,
         text = result[0]
         keyboard = result[1]
         text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
-        await callback.message.edit_text(
+        await callback.message.edit_reply_markup(
             text=text,
             reply_markup=keyboard
         )
