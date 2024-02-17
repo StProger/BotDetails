@@ -85,7 +85,7 @@ async def get_params_one_detail(item, state: FSMContext, link, adress):
     return text
 
 
-async def params_select_item(item):
+async def params_select_item(item, state: FSMContext):
 
     official_seller_link = "https://avtopartner.online/bitrix/components/linemedia.auto/search.results/templates/.default/images/ok.gif"
     percent = await DatabaseAPI.get_percent()
@@ -95,7 +95,9 @@ async def params_select_item(item):
 
     if official_seller_link in item["Ссылка на метку склада"]:
         official_seller = True
+    old_price = int("".join(i for i in item["Цена"].split()[:-1]))
     price_item = float("".join(i for i in item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
+    await state.update_data(price_detail=int(price_item), old_price=old_price)
     text += f"{item['Названия']}\n\n" \
             f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
             f"<b>МАРКА</b> - {item['Марка']}\n" \

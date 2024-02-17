@@ -132,7 +132,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     choose_detail = data[choosed_producer][int(callback.data)]
 
     # Получаем описание выбранной детали
-    params_item = await params_select_item(item=choose_detail)
+    params_item = await params_select_item(item=choose_detail, state=state)
     await state.update_data(choose_detail=choose_detail)
     builder = InlineKeyboardBuilder()
     builder.button(text="Добавить в корзину", callback_data="add_to_busket")

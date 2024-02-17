@@ -2,6 +2,11 @@ import aiohttp
 
 from config import DIRECTUS_API_URL, TOKEN_DIRECTUS
 
+import json
+
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardButton
+
 
 class Busket(object):
 
@@ -12,7 +17,11 @@ class Busket(object):
     }
 
     @classmethod
-    async def add_item(cls, item):
+    async def add_item(cls,
+                       item,
+                       price,
+                       user_id,
+                       link_item):
         """
         Добавить элемент в корзину
         :param item:
@@ -21,7 +30,11 @@ class Busket(object):
 
         url = f"{DIRECTUS_API_URL}/items/autogait_cart"
         body = {
-            "item": item
+            "product": json.dumps(item),
+            "user": user_id,
+            "price_with_percent": price,
+            "title_product": item["Названия"],
+            "link_item": link_item
         }
         async with aiohttp.ClientSession(headers=cls.headers) as session:
 
@@ -49,12 +62,34 @@ class Busket(object):
         :return:
         """
 
-        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[telegram_id][_eq]={user_id}"
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
 
         async with aiohttp.ClientSession(headers=cls.headers) as session:
             response = await session.get(url=url)
 
+        if response.status in [200, 204]:
+            builder = InlineKeyboardBuilder()
+            data = await response.json()
+            text = ""
+            sum_ = 0
+            for item in data["data"]:
+                builder.button(text=f"{item['product']['Названия']}", callback_data=f"drop_busket_{item['id']}")
+                text += f"{item['product']['Названия']}\n"
+                sum_ += item["price_with_percent"]
+            text += f"\n" \
+                    f"Сумма заказа: {sum_} руб."
+            builder.adjust(3)
+            return text, builder.as_markup()
 
+    @classmethod
+    async def is_empty(cls, user_id):
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
+
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+            response = await session.get(url=url)
         if response.status in [200, 204]:
             data = await response.json()
-            return data["data"]
+            if len(data["data"]) == 0:
+                return True
+            else:
+                return False
