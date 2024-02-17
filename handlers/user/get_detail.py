@@ -323,7 +323,7 @@ async def send_photo_to_admin(callback: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
     mes = await bot.send_photo(
-        chat_id=group_id,
+        chat_id=-4199222135,
         photo=photo_id,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=callback.from_user.id, id_order=id_order)
@@ -364,7 +364,7 @@ async def send_photo_to_admin(message: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: {id_order}"
     mes = await bot.send_photo(
-        chat_id=group_id,
+        chat_id=-4199222135,
         photo=photo_id,
         caption=caption,
         reply_markup=menu.key_accept_order(user_id=message.from_user.id, id_order=id_order)
