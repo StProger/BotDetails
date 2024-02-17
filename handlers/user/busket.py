@@ -43,7 +43,7 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
 
-    choose_detail = data[choosed_producer][int(callback.data)]
+    choose_detail = data[choosed_producer][int(callback.data.split("_")[-1])]
     choosed_producer = state_data["choosed_producer"]
     price_item = await get_price_with_percent(item=choose_detail)
     await Busket.add_item(item=choose_detail,
