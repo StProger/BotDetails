@@ -1,4 +1,5 @@
 import aiohttp
+from aiogram.fsm.context import FSMContext
 
 from config import DIRECTUS_API_URL, TOKEN_DIRECTUS
 
@@ -6,6 +7,9 @@ import json
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
+
+from db_api.api import DatabaseAPI
+from scrap_details import items as update_item
 
 
 class Busket(object):
@@ -57,7 +61,7 @@ class Busket(object):
             await session.delete(url=url)
 
     @classmethod
-    async def get_items(cls, user_id):
+    async def get_items(cls, user_id, state: FSMContext):
         """
         Получение предметов из корзины
         :param user_id:
@@ -78,6 +82,7 @@ class Busket(object):
                 builder.button(text=f"{item['product']['Названия']}", callback_data=f"drop_busket_{item['id']}")
                 text += f"{index+1}. {item['product']['Названия']}\n"
                 sum_ += int(item["price_with_percent"])
+            await state.update_data(cost_of_busket=sum_)
             text += f"\n" \
                     f"Сумма заказа: {sum_} руб."
             builder.adjust(3)
@@ -121,3 +126,65 @@ class Busket(object):
             for item in data["data"]:
                 url = f"{DIRECTUS_API_URL}/items/autogait_cart/{item['id']}"
                 await session.delete(url=url)
+
+    @classmethod
+    async def count_items(cls, user_id):
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
+
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return len(data["data"])
+
+    @classmethod
+    async def check_updates(cls, user_id):
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
+
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+
+            response = await session.get(url=url)
+            data = await response.json()
+        text = ""
+        percent = await DatabaseAPI.get_percent()
+        for item in data["data"]:
+            url_login = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=login"
+            async with aiohttp.ClientSession(headers=cls.headers) as session:
+                response = await session.get(url=url_login)
+                data_ = await response.json()
+                login = data_["data"][0]["value"]
+                url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
+
+                response = await session.get(url=url_password)
+                data_ = await response.json()
+            password = data_["data"][0]["value"]
+            result = update_item(username=login,
+                                 password=password,
+                                 link=item["link_item"])
+
+            for sub_item in result[item["link_item"]]:
+                if item["product"]["Артикул"] == sub_item["Артикул"] and \
+                        item["product"]["Названия"] == sub_item["Названия"] and \
+                        item["product"]["Марка"] == sub_item["Марка"] and \
+                        item["product"]["Склад"] == sub_item["Склад"]:
+                    if int(sub_item["В наличии"]) == 0:
+                        text += "Товара нет"
+                        # Сделать логику удаленяи товара
+                        ...
+
+                    else:
+                        # Проверяем изменение цены
+                        price_item = float("".join(i for i in sub_item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
+                        if price_item != int(item["price_with_percent"]):
+
+                            text += "Изменилась цена"
+                            # Сделать логику изменения цены товара в бд
+                            ...
+
+
+
+
+
+
+

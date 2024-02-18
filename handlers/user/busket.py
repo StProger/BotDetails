@@ -37,6 +37,10 @@ class SBusket(StatesGroup):
 @busket_router.callback_query(SGetDetail.order, F.data.contains("add_to_busket"))
 async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
 
+    count_items = await Busket.count_items(user_id=callback.from_user.id)
+    if count_items >= 5:
+        await callback.answer("В вашей корзине 5 товаров, добавление невозможно.",
+                              show_alert=True)
     state_data = await state.get_data()
     choosed_producer = state_data["choosed_producer"]
 

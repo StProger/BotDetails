@@ -6,6 +6,7 @@ from .get_detail import detail_router
 from .group import grorup_router
 from .busket import busket_router
 from .get_busket import get_busket_router
+from .buy_busket import order_busket
 
 from middlewares import CheckUser, BusketIsEmpty
 
@@ -23,5 +24,6 @@ main_router_user.include_routers(
     detail_router,
     grorup_router,
     busket_router,
-    get_busket_router
+    get_busket_router,
+    order_busket
 )
