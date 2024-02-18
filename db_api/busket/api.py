@@ -39,6 +39,8 @@ class Busket(object):
         async with aiohttp.ClientSession(headers=cls.headers) as session:
 
             response = await session.post(url, json=body)
+            data = await response.json()
+            print(data)
 
     @classmethod
     async def delete_item(cls, item_id):
