@@ -115,4 +115,9 @@ class Busket(object):
         url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
 
         async with aiohttp.ClientSession(headers=cls.headers) as session:
-            await session.delete(url=url)
+            response = await session.get(url=url)
+            data = await response.json()
+
+            for item in data["data"]:
+                url = f"{DIRECTUS_API_URL}/items/autogait_cart/{item['id']}"
+                await session.delete(url=url)
