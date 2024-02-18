@@ -83,10 +83,18 @@ class Busket(object):
             builder.adjust(3)
             builder.row(
                 InlineKeyboardButton(
+                    text="Оформить заказ", callback_data="buy_from_busket"
+                ),
+                InlineKeyboardButton(
+                    text="Очистить корзину", callback_data="clean_busket"
+                )
+            )
+            builder.row(
+                InlineKeyboardButton(
                     text="Меню", callback_data="go_menu"
                 )
             )
-            return text, builder.as_markup()
+            return text, builder.as_markup(), data["data"]
 
     @classmethod
     async def is_empty(cls, user_id):
@@ -100,3 +108,11 @@ class Busket(object):
                 return True
             else:
                 return False
+
+    @classmethod
+    async def clear_busket(cls, user_id):
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
+
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+            await session.delete(url=url)

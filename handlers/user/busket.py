@@ -53,4 +53,42 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer("Товар добавлен в корзину✅", show_alert=True)
 
 
+@busket_router.callback_query(F.data.contains("drop_busket_"))
+async def delete_item(callback: types.CallbackQuery):
+
+    item_id = callback.data.split("_")[-1]
+    await Busket.delete_item(item_id=item_id)
+    result = await Busket.get_items(user_id=callback.from_user.id)
+    if len(result[2]) != 0:
+        text = result[0]
+        keyboard = result[1]
+        text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
+
+        await callback.message.edit_text(
+            text=text,
+            reply_markup=keyboard
+        )
+    else:
+        builder = InlineKeyboardBuilder()
+        builder.button(text="Заказать деталь", callback_data="get_detail_menu")
+        builder.button(text="Меню", callback_data="go_menu")
+        builder.adjust(1)
+        await callback.message.edit_text(
+            text="Корзина пуста",
+            reply_markup=builder.as_markup()
+        )
+
+
+@busket_router.callback_query(F.data.contains("clean_busket"))
+async def delete_item(callback: types.CallbackQuery):
+
+    await Busket.clear_busket(user_id=callback.from_user.id)
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Заказать деталь", callback_data="get_detail_menu")
+    builder.button(text="Меню", callback_data="go_menu")
+    builder.adjust(1)
+    await callback.message.edit_text(
+        text="Корзина очищена",
+        reply_markup=builder.as_markup()
+    )
 
