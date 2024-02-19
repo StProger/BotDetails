@@ -38,6 +38,7 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
     if count_items >= 5:
         await callback.answer("В вашей корзине 5 товаров, добавление невозможно.",
                               show_alert=True)
+        return
     state_data = await state.get_data()
     choosed_producer = state_data["choosed_producer"]
 
@@ -272,7 +273,7 @@ async def get_photo_pay(message: types.Message,
     # Остановился на получении фотки
 
 
-@busket_router.callback_query(SBusket.photo_pay, F.photo)
+@busket_router.message(SBusket.photo_pay, F.photo)
 async def get_note(message: types.Message,
                    state: FSMContext,
                    bot: Bot):
