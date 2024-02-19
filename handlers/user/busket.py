@@ -203,6 +203,50 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
             reply_markup=menu.key_points(points=points)
         )
 
+@busket_router.callback_query(SBusket.order_only, F.data == "get_basket")
+async def content_busket(callback: types.CallbackQuery,
+                         is_empty,
+                         state: FSMContext):
+    print("Ворк")
+    try:
+        if is_empty:
+            await callback.answer("Корзина пуста", show_alert=True)
+        else:
+
+            result = await Busket.get_items(user_id=callback.from_user.id, state=state)
+            text = result[0]
+            keyboard = result[1]
+            text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
+            await callback.message.delete()
+            await callback.message.answer(
+                text=text,
+                reply_markup=keyboard
+            )
+    except Exception as ex:
+        print(ex)
+
+        
+@busket_router.callback_query(SBusket.point_pickup, F.data == "get_basket")
+async def content_busket(callback: types.CallbackQuery,
+                         is_empty,
+                         state: FSMContext):
+    print("Ворк")
+    try:
+        if is_empty:
+            await callback.answer("Корзина пуста", show_alert=True)
+        else:
+
+            result = await Busket.get_items(user_id=callback.from_user.id, state=state)
+            text = result[0]
+            keyboard = result[1]
+            text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
+            await callback.message.delete()
+            await callback.message.answer(
+                text=text,
+                reply_markup=keyboard
+            )
+    except Exception as ex:
+        print(ex)
 
 @busket_router.callback_query(SBusket.order_only, F.data=="go_order")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
