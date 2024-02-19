@@ -151,7 +151,7 @@ async def get_params_busket(user_id, state: FSMContext):
         text += f"<b>Склад</b> - {item['product']['Склад']}\n"
         text += f"<b>Ссылка</b> - <a href='{item['link_item']}'>Товар</a>\n"
 
-    text = f"<b>Пункт самовывоза</b> - {state_data['address']}\n\n"
+    text += f"<b>Пункт самовывоза</b> - {state_data['address']}\n\n"
 
 
     await state.update_data(old_price=old_sum, price_detail=sum_, links_buket=links)
