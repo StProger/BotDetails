@@ -24,7 +24,7 @@ get_busket_router = Router()
 async def content_busket(callback: types.CallbackQuery,
                          is_empty,
                          state: FSMContext):
-
+    print("Ворк")
     if is_empty:
         await callback.answer("Корзина пуста", show_alert=True)
     else:
