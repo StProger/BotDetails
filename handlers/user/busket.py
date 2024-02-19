@@ -207,7 +207,7 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
 @busket_router.callback_query(SBusket.order_only, F.data=="go_order")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
 
-    await state.set_state(SGetDetail.point_pickup)
+    await state.set_state(SBusket.point_pickup)
     points = await DatabaseAPI.get_points()
     text = "Выберите пункт самовывоза⬇️"
     await callback.message.edit_text(
