@@ -1,4 +1,5 @@
 import aiohttp
+from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 
 from config import DIRECTUS_API_URL, TOKEN_DIRECTUS
@@ -183,6 +184,49 @@ class Busket(object):
                             text += "Изменилась цена"
                             # Сделать логику изменения цены товара в бд
                             ...
+
+    @classmethod
+    async def get_products(cls, user_id):
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
+
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+            response = await session.get(url=url)
+
+        if response.status in [200, 204]:
+            data = await response.json()
+            return data["data"]
+        else:
+            await Busket.get_products(user_id=user_id)
+
+    @classmethod
+    async def add_order_to_db(cls, user_id, state_data: dict, bot: Bot, text):
+
+        body = {
+            "user": user_id,
+            "product": text.replace("<b>", " ").replace("</b>", " ").replace(f"<b>Ссылка</b> - <a href='{state_data['choosed_producer']}'>Товар</a>", ""),
+            "note": state_data.get("note", ""),
+            "no_percent_price": state_data["old_price"],
+            "percent_price": state_data["price_detail"],
+            "profit_sum": int(state_data["price_detail"] - state_data["old_price"]),
+            "approved": False,
+            "link_item": ", ".join(state_data["links_buket"])
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_orders"
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
+            response = await session.post(url=url, json=body)
+            data = await response.json()
+        print(f"Данные о добавлении заказа: {data}")
+        # await bot.send_message(
+        #     chat_id=1878562358,
+        #     text=str(data)
+        # )
+        try:
+            return data["data"]
+        except Exception as ex:
+            print(f"Ошибка: {ex}")
+
 
 
 

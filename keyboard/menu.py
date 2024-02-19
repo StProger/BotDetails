@@ -135,11 +135,23 @@ def key_accept_order(user_id, id_order):
     builder.button(text="Принять", callback_data=f"accept_{id_order}_{user_id}")
     return builder.as_markup()
 
+def key_accept_order_busket(user_id, id_order):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Принять", callback_data=f"accept_busket_{id_order}_{user_id}")
+    return builder.as_markup()
 
 def key_finish_order(user_id):
     builder = InlineKeyboardBuilder()
     builder.button(text="Завершить", callback_data=f"finish_{user_id}")
     builder.button(text="Заказ отменён поставщиком", callback_data=f"break_{user_id}")
+    builder.adjust(1)
+    return builder.as_markup()
+
+def key_finish_order_busket(user_id):
+
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Завершить", callback_data=f"finish_busket_{user_id}")
+    builder.button(text="Заказ отменён поставщиком", callback_data=f"break_busket_{user_id}")
     builder.adjust(1)
     return builder.as_markup()
 

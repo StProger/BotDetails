@@ -12,7 +12,7 @@ from db_api.busket.api import Busket
 
 import json
 
-from utils.get_params import get_params, get_params_one_detail, params_select_item
+from utils.get_params import get_params_busket
 from utils.params_busket import get_price_with_percent
 
 from .get_detail import SGetDetail
@@ -270,3 +270,185 @@ async def get_photo_pay(message: types.Message,
     await state.update_data(mes_del=mes_.message_id)
 
     # Остановился на получении фотки
+
+
+@busket_router.callback_query(SBusket.photo_pay, F.photo)
+async def get_note(message: types.Message,
+                   state: FSMContext,
+                   bot: Bot):
+    state_data = await state.get_data()
+    photo_id = message.photo[-1].file_id
+    await state.update_data(photo_id=photo_id)
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    mes = await message.answer("Напишите комментарий к заказу, либо пропустите этот шаг с помощью кнопки ниже⬇️",
+                               reply_markup=menu.key_skip_note())
+    await state.update_data(mes_del=mes.message_id)
+    await state.set_state(SBusket.note)
+
+
+@busket_router.callback_query(SBusket.note, F.data == "skip_note")
+async def send_photo_to_admin(callback: types.Message,
+                              state: FSMContext,
+                              bot: Bot):
+    state_data = await state.get_data()
+    # group_id = await DatabaseAPI.get_channel_id()
+    text_order = await get_params_busket(user_id=callback.from_user.id,
+                                         state=state)
+    photo_id = state_data["photo_id"]
+    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n</b>" + text_order + \
+        f"Клиент:\n" \
+        f"Телефон: {state_data['phone']}\n" \
+        f"Имя: {state_data['name']}\n\n"
+    result = await Busket.add_order_to_db(user_id=callback.from_user.id,
+                                          state_data=await state.get_data(),
+                                          bot=bot,
+                                          text=text_order)
+
+    id_order = result["id"]
+    caption += f"Номер заказа: #{id_order}"
+    mes = await bot.send_photo(
+        chat_id=-4199222135,
+        photo=photo_id,
+        caption=caption,
+        reply_markup=menu.key_accept_order_busket(user_id=callback.from_user.id, id_order=id_order)
+    )
+    await DatabaseAPI.update_url_order(id_order=id_order, link=mes.message_id)
+    try:
+        await bot.delete_message(
+            chat_id=callback.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    await callback.message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
+                                  reply_markup=menu.go_menu())
+    await state.clear()
+
+
+@busket_router.message(SBusket.note)
+async def send_photo_to_admin(message: types.Message,
+                              state: FSMContext,
+                              bot: Bot):
+    state_data = await state.get_data()
+    # group_id = await DatabaseAPI.get_channel_id()
+    text_order = await get_params_busket(user_id=message.from_user.id,
+                                         state=state)
+    note = message.text
+    await state.update_data(note=note)
+    photo_id = state_data["photo_id"]
+    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n</b>" + text_order + \
+              f"Клиент:\n" \
+              f"Телефон: {state_data['phone']}\n" \
+              f"Имя: {state_data['name']}\n" \
+              f"Комментарий к заказу: {note}\n\n"
+    result = await Busket.add_order_to_db(user_id=message.from_user.id,
+                                          state_data=await state.get_data(),
+                                          bot=bot,
+                                          text=text_order)
+
+    id_order = result["id"]
+    caption += f"Номер заказа: #{id_order}"
+    mes = await bot.send_photo(
+        chat_id=-4199222135,
+        photo=photo_id,
+        caption=caption,
+        reply_markup=menu.key_accept_order_busket(user_id=message.from_user.id, id_order=id_order)
+    )
+    await DatabaseAPI.update_url_order(id_order=id_order, link=mes.message_id)
+    try:
+        await bot.delete_message(
+            chat_id=message.from_user.id,
+            message_id=state_data["mes_del"]
+        )
+    except:
+        pass
+    await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
+                         reply_markup=menu.go_menu())
+    await state.clear()
+
+
+@busket_router.callback_query(F.data.contains("accept_busket"))
+async def send_confirm(callback: types.CallbackQuery, bot: Bot):
+
+    # group_id = await DatabaseAPI.get_channel_id()
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
+    user_id = callback.data.split("_")[-1]
+    id_order = callback.data.split("_")[-2]
+    await DatabaseAPI.update_approve(id_order=id_order)
+    text = callback.message.caption
+    for link in order["link_item"].split(","):
+        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+
+    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    result = ""
+    results = re.findall(pattern, text)
+    for result_ in results:
+        result +=  result_.replace("Склад", "") + "\n"
+    text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
+
+    text_ += result
+    await bot.send_message(
+        chat_id=user_id,
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
+    )
+    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅",
+                                        reply_markup=menu.key_finish_order_busket(user_id=user_id))
+
+
+@busket_router.callback_query(F.data.contains("finish_busket"))
+async def finish_order(callback: types.CallbackQuery, bot: Bot):
+
+    user_id = callback.data.split("_")[-1]
+    group_id = await DatabaseAPI.get_channel_id()
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
+    text = callback.message.caption
+    for link in order["link_item"].split(","):
+        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+    # print(text)
+    text_ = "<b>ВАШ ЗАКАЗ ДОСТАВЛЕН В ПУНКТ ВЫДАЧИ</b>\n\n"
+    # print(result)
+    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    result = ""
+    results = re.findall(pattern, text)
+    for result_ in results:
+        result += result_.replace("Склад", "") + "\n"
+    text_ += result
+    await bot.send_message(
+        chat_id=user_id,
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
+    )
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
+
+
+@busket_router.callback_query(F.data.contains("break_busket"))
+async def break_order(callback: types.CallbackQuery, bot: Bot):
+
+    user_id = callback.data.split("_")[-1]
+    group_id = await DatabaseAPI.get_channel_id()
+    order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
+    text = callback.message.caption
+    for link in order["link_item"].split(","):
+        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+    # print(text)
+    text_ = "<b>ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ</b>\n\n"
+    # print(result)
+    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    result = ""
+    results = re.findall(pattern, text)
+    for result_ in results:
+        result += result_.replace("Склад", "") + "\n"
+    text_ += result
+    await bot.send_message(
+        chat_id=user_id,
+        text=text_,
+        reply_markup=menu.key_menu_after_success()
+    )
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")

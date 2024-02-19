@@ -314,7 +314,7 @@ async def get_note(message: types.Message, state: FSMContext, bot: Bot):
                                reply_markup=menu.key_skip_note())
     await state.update_data(mes_del=mes.message_id)
     await state.set_state(SGetDetail.note)
-    return
+
 
 
 @detail_router.callback_query(SGetDetail.note, F.data == "skip_note")
