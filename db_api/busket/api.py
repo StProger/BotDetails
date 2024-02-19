@@ -79,6 +79,7 @@ class Busket(object):
         if response.status in [200, 204]:
             print("wgwg")
             builder = InlineKeyboardBuilder()
+            print(await response.json())
             data = await response.json()
             print(data)
             text = ""
