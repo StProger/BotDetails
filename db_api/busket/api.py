@@ -205,9 +205,12 @@ class Busket(object):
     @classmethod
     async def add_order_to_db(cls, user_id, state_data: dict, bot: Bot, text):
 
+        for link in state_data["links_buket"]:
+            text.replace("<b>", " ").replace("</b>", " ").replace(
+                f"<b>Ссылка</b> - <a href='{link}'>Товар</a>", "", 1)
         body = {
             "user": user_id,
-            "product": text.replace("<b>", " ").replace("</b>", " ").replace(f"<b>Ссылка</b> - <a href='{state_data['choosed_producer']}'>Товар</a>", ""),
+            "product": text,
             "note": state_data.get("note", ""),
             "no_percent_price": state_data["old_price"],
             "percent_price": state_data["price_detail"],
