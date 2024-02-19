@@ -129,7 +129,7 @@ async def get_params_busket(user_id, state: FSMContext):
         official_seller = False
         days = int(await DatabaseAPI.get_days())
 
-        if official_seller_link in item["Ссылка на метку склада"]:
+        if official_seller_link in item['product']["Ссылка на метку склада"]:
             official_seller = True
 
         old_price = int("".join(i for i in item['product']["Цена"].split()[:-1]))
