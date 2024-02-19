@@ -75,10 +75,11 @@ class Busket(object):
 
         async with aiohttp.ClientSession(headers=cls.headers) as session:
             response = await session.get(url=url)
-
+        print(response.status)
         if response.status in [200, 204]:
             builder = InlineKeyboardBuilder()
             data = await response.json()
+            print(data)
             text = ""
             sum_ = 0
             for index, item in enumerate(data["data"]):
