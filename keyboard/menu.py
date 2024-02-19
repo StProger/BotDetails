@@ -80,6 +80,20 @@ def key_order():
     )
     return builder.as_markup()
 
+def key_order_busket():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Оформить заказ", callback_data="go_order")
+    builder.row(
+        InlineKeyboardButton(
+            text="Назад", callback_data="get_busket"
+        ),
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+
+    return builder.as_markup()
+
 
 def key_points(points):
 

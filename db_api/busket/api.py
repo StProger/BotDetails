@@ -25,7 +25,8 @@ class Busket(object):
                        item,
                        price,
                        user_id,
-                       link_item):
+                       link_item,
+                       count_item):
         """
         Добавить элемент в корзину
         :param item:
@@ -36,9 +37,10 @@ class Busket(object):
         body = {
             "product": json.dumps(item),
             "user": user_id,
-            "price_with_percent": price,
+            "price_with_percent": price * count_item,
             "title_product": item["Названия"],
-            "link_item": link_item
+            "link_item": link_item,
+            "count_item": count_item
         }
         async with aiohttp.ClientSession(headers=cls.headers) as session:
 
