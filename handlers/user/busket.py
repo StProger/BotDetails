@@ -200,7 +200,7 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
         text = "Выберите пункт самовывоза⬇️"
         await callback.message.edit_text(
             text=text,
-            reply_markup=menu.key_points(points=points)
+            reply_markup=menu.key_points_basket(points=points)
         )
 
 # @busket_router.callback_query(SBusket.order_only, F.data == "get_basket")
@@ -256,7 +256,7 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
     text = "Выберите пункт самовывоза⬇️"
     await callback.message.edit_text(
         text=text,
-        reply_markup=menu.key_points(points=points)
+        reply_markup=menu.key_points_basket(points=points)
     )
 
 

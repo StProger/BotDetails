@@ -112,6 +112,23 @@ def key_points(points):
     )
     return builder.as_markup()
 
+def key_points_basket(points):
+
+    builder = InlineKeyboardBuilder()
+
+    for point in points:
+        builder.button(text=point["button_name"], callback_data=str(point["id"]))
+    builder.adjust(3)
+    builder.row(
+        InlineKeyboardButton(
+            text="Назад", callback_data="get_basket"
+        ),
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+    return builder.as_markup()
+
 
 def key_get_contacts():
 
