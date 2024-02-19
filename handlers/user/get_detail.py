@@ -133,9 +133,21 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
 
     # Получаем описание выбранной детали
     params_item = await params_select_item(item=choose_detail, state=state)
-    await state.update_data(choose_detail=choose_detail)
+    await state.update_data(choose_detail=choose_detail, index_detail=callback.data,
+                            count_product=1)
     builder = InlineKeyboardBuilder()
     builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
+    builder.row(
+        types.InlineKeyboardButton(
+            text="➖", callback_data="minus_item_0"
+        ),
+        types.InlineKeyboardButton(
+            text="1 шт.", callback_data="_"
+        ),
+        types.InlineKeyboardButton(
+            text="➕", callback_data="plus_item_2"
+        )
+    )
     builder.row(
         types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
     )
