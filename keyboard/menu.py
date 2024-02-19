@@ -85,7 +85,7 @@ def key_order_busket():
     builder.button(text="Оформить заказ", callback_data="go_order")
     builder.row(
         InlineKeyboardButton(
-            text="Назад", callback_data="get_busket"
+            text="Назад", callback_data="get_basket"
         ),
         InlineKeyboardButton(
             text="Меню", callback_data="go_menu"
