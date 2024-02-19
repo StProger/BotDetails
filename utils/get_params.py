@@ -132,23 +132,23 @@ async def get_params_busket(user_id, state: FSMContext):
         if official_seller_link in item["Ссылка на метку склада"]:
             official_seller = True
 
-        old_price = int("".join(i for i in item["Цена"].split()[:-1]))
+        old_price = int("".join(i for i in item['product']["Цена"].split()[:-1]))
         old_sum += old_price
         sum_ += int(item["price_with_percent"])
 
         text += f"Товар: {item['Названия']}\n\n" \
-                f"<b>АРТИКУЛ</b> - \"{item['Артикул']}\"\n" \
-                f"<b>МАРКА</b> - {item['Марка']}\n" \
+                f"<b>АРТИКУЛ</b> - \"{item['product']['Артикул']}\"\n" \
+                f"<b>МАРКА</b> - {item['product']['Марка']}\n" \
                 f"<b>Цена</b> - {int(item['price_with_percent'])} руб\n" \
-                f"<b>Время доставки</b> - {int(item['Время доставки'].split()[0]) + days} д.\n" \
+                f"<b>Время доставки</b> - {int(item['product']['Время доставки'].split()[0]) + days} д.\n" \
                 f"<b>Кол-во</b> - {item['count_item']} шт.\n"
 
         if official_seller:
             text += "<b>ОФИЦИАЛЬНЫЙ ДИСТРИБЮТОР✅ </b>\n"
-        if not (item["original"]):
+        if not (item['product']["original"]):
             text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
 
-        text += f"<b>Склад</b> - {item['Склад']}\n"
+        text += f"<b>Склад</b> - {item['product']['Склад']}\n"
         text += f"<b>Ссылка</b> - <a href='{item['link_item']}'>Товар</a>\n"
 
     text = f"<b>Пункт самовывоза</b> - {state_data['address']}\n\n"
