@@ -77,6 +77,7 @@ class Busket(object):
             response = await session.get(url=url)
         print(response.status)
         if response.status in [200, 204]:
+            print("wgwg")
             builder = InlineKeyboardBuilder()
             data = await response.json()
             print(data)
