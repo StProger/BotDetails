@@ -34,7 +34,7 @@ async def content_busket(callback: types.CallbackQuery,
             result = await Busket.get_items(user_id=callback.from_user.id, state=state)
             text = result[0]
             keyboard = result[1]
-            text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
+            text += "\n\nДля удаления товара из корзины нажмите на его номер снизу⬇️"
             await callback.message.delete()
             await callback.message.answer(
                 text=text,

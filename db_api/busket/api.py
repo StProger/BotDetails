@@ -88,7 +88,7 @@ class Busket(object):
                 text = ""
                 sum_ = 0
                 for index, item in enumerate(data["data"]):
-                    builder.button(text=f"{item['product']['Названия']}", callback_data=f"drop_busket_{item['id']}")
+                    builder.button(text=f"{index + 1}", callback_data=f"drop_busket_{item['id']}")
                     text += f"{index+1}. {item['product']['Названия']}\n"
                     sum_ += int(item["price_with_percent"])
                 await state.update_data(cost_of_busket=sum_)
