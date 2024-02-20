@@ -89,7 +89,7 @@ class Busket(object):
                 sum_ = 0
                 for index, item in enumerate(data["data"]):
                     builder.button(text=f"{index + 1}", callback_data=f"drop_busket_{item['id']}")
-                    text += f"{index+1}. {item['product']['Названия']} {item['count_item']}\n"
+                    text += f"{index+1}. {item['product']['Названия']} {item['count_item']} шт.\n"
                     sum_ += int(item["price_with_percent"])
                 await state.update_data(cost_of_busket=sum_)
                 text += f"\n" \
@@ -200,12 +200,12 @@ class Busket(object):
                         price_item = float("".join(i for i in sub_item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
                         if int(price_item) * item['count_item'] != int(item["price_with_percent"]):
 
-                            text += f"Общая цена за {item['product']['Названия']} изменилась с {item['price_with_percent']} " \
-                                    f"на {price_item * item['count_item']}\n"
+                            text += f"Общая цена за {item['product']['Названия']} изменилась с {int(item['price_with_percent'])} " \
+                                    f"на {int(price_item) * item['count_item']}\n"
                             # Сделать логику изменения цены товара в бд
                             await cls.update_price(item_id=item['id'], price=price_item*item['count_item'])
                             cost_order = state_data["cost_of_busket"]
-                            cost_order += int(price_item) * int(item['count_item']) - int(item["price_with_percent"])
+                            cost_order += (int(price_item) * int(item['count_item'])) - int(item["price_with_percent"])
                             await state.update_data(cost_of_busket=cost_order)
                 if found:
                     break
