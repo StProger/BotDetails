@@ -270,7 +270,7 @@ class Busket(object):
         print(price)
         url = f"{DIRECTUS_API_URL}/items/autogait_cart/{item_id}"
         body = {
-            "price_with_percent": price
+            "price_with_percent": int(price)
         }
         async with aiohttp.ClientSession(headers=cls.headers) as session:
             response = await session.patch(url=url, json=body)
