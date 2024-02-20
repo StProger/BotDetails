@@ -144,11 +144,11 @@ async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
 
 
 @busket_router.callback_query(F.data.contains("drop_busket_"))
-async def delete_item(callback: types.CallbackQuery):
+async def delete_item(callback: types.CallbackQuery, state: FSMContext):
 
     item_id = callback.data.split("_")[-1]
     await Busket.delete_item(item_id=item_id)
-    result = await Busket.get_items(user_id=callback.from_user.id)
+    result = await Busket.get_items(user_id=callback.from_user.id, state=state)
     if len(result[2]) != 0:
         text = result[0]
         keyboard = result[1]
