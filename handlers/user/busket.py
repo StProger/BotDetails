@@ -323,7 +323,7 @@ async def send_photo_to_admin(callback: types.Message,
     text_order = await get_params_busket(user_id=callback.from_user.id,
                                          state=state)
     photo_id = state_data["photo_id"]
-    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n</b>" + text_order + \
+    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n\n</b>" + text_order + \
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
         f"Имя: {state_data['name']}\n\n"
@@ -364,7 +364,7 @@ async def send_photo_to_admin(message: types.Message,
     note = message.text
     await state.update_data(note=note)
     photo_id = state_data["photo_id"]
-    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n</b>" + text_order + \
+    caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n\n</b>" + text_order + \
               f"Клиент:\n" \
               f"Телефон: {state_data['phone']}\n" \
               f"Имя: {state_data['name']}\n" \
@@ -411,6 +411,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     result = ""
     results = re.findall(pattern, text)
     for result_ in results:
+        print(result_)
         result +=  result_.replace("Склад", "") + "\n"
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
 

@@ -149,7 +149,7 @@ async def get_params_busket(user_id, state: FSMContext):
             text += "<b>НЕОРИГИНАЛЬНЫЙ АНАЛОГ</b>\n"
 
         text += f"<b>Склад</b> - {item['product']['Склад']}\n"
-        text += f"<b>Ссылка</b> - <a href='{item['link_item']}'>Товар</a>\n"
+        text += f"<b>Ссылка</b> - <a href='{item['link_item']}'>Товар</a>\n\n"
 
     text += f"<b>Пункт самовывоза</b> - {state_data['address']}\n\n"
 
