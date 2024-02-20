@@ -136,7 +136,7 @@ async def get_params_busket(user_id, state: FSMContext):
         old_sum += old_price
         sum_ += int(item["price_with_percent"])
 
-        text += f"Товар: {item['product']['Названия']}\n\n" \
+        text += f"ТОВАР: {item['product']['Названия']}\n\n" \
                 f"<b>АРТИКУЛ</b> - \"{item['product']['Артикул']}\"\n" \
                 f"<b>МАРКА</b> - {item['product']['Марка']}\n" \
                 f"<b>Цена</b> - {int(item['price_with_percent'])} руб\n" \

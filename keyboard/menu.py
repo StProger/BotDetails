@@ -62,6 +62,24 @@ def choose_item_key():
     return builder.as_markup()
 
 
+def choose_item_key_without_producer():
+
+    builder = InlineKeyboardBuilder()
+    for i in range(1, 4):
+        builder.button(text=str(i), callback_data=f"{str(i - 1)}")
+    builder.row(
+        InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="Ввести другой артикул", callback_data="get_detail_menu"
+        )
+    )
+    return builder.as_markup()
+
+
 def key_order():
     builder = InlineKeyboardBuilder()
     builder.button(text="Оформить заказ", callback_data="go_order")
@@ -112,6 +130,7 @@ def key_points(points):
     )
     return builder.as_markup()
 
+
 def key_points_basket(points):
 
     builder = InlineKeyboardBuilder()
@@ -120,9 +139,6 @@ def key_points_basket(points):
         builder.button(text=point["button_name"], callback_data=str(point["id"]))
     builder.adjust(3)
     builder.row(
-        InlineKeyboardButton(
-            text="Назад", callback_data="get_basket"
-        ),
         InlineKeyboardButton(
             text="Меню", callback_data="go_menu"
         )
@@ -154,7 +170,7 @@ def key_accept_order(user_id, id_order):
 
 def key_accept_order_busket(user_id, id_order):
     builder = InlineKeyboardBuilder()
-    builder.button(text="Принять", callback_data=f"accept_busket_{id_order}_{user_id}")
+    builder.button(text="Принять", callback_data=f"busket_accept_{id_order}_{user_id}")
     return builder.as_markup()
 
 def key_finish_order(user_id):
@@ -167,8 +183,8 @@ def key_finish_order(user_id):
 def key_finish_order_busket(user_id):
 
     builder = InlineKeyboardBuilder()
-    builder.button(text="Завершить", callback_data=f"finish_busket_{user_id}")
-    builder.button(text="Заказ отменён поставщиком", callback_data=f"break_busket_{user_id}")
+    builder.button(text="Завершить", callback_data=f"busket_finish_{user_id}")
+    builder.button(text="Заказ отменён поставщиком", callback_data=f"busket_break_{user_id}")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -195,5 +211,17 @@ def key_after_set_number(user_id, order_id, caption):
     else:
         builder.button(text="Завершить", callback_data=f"finish_{user_id}")
         builder.button(text="Заказ отменён поставщиком", callback_data=f"break_{user_id}")
+        builder.adjust(1)
+        return builder.as_markup()
+
+
+def key_after_set_number_basket(user_id, order_id, caption):
+    builder = InlineKeyboardBuilder()
+    if "Заявка одобрена✅" not in caption:
+        builder.button(text="Принять", callback_data=f"busket_accept_{order_id}_{user_id}")
+        return builder.as_markup()
+    else:
+        builder.button(text="Завершить", callback_data=f"busket_finish_{user_id}")
+        builder.button(text="Заказ отменён поставщиком", callback_data=f"busket_break_{user_id}")
         builder.adjust(1)
         return builder.as_markup()

@@ -1,4 +1,4 @@
-import re
+import re, os
 
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
@@ -32,7 +32,10 @@ class SGetDetail(StatesGroup):
 
 @detail_router.callback_query(F.data == "get_detail_menu")
 async def get_article(callback: types.CallbackQuery, state: FSMContext):
-
+    if os.path.exists(f"data/{callback.from_user.id}_data.json"):
+        os.remove(f"data/{callback.from_user.id}_data.json")
+    if os.path.exists(f"data/{callback.from_user.id}_data_links.json"):
+        os.remove(f"data/{callback.from_user.id}_data_links.json")
     await state.set_state(SGetDetail.article)
     await callback.message.delete()
     mes_ = await callback.message.answer("Отправьте артикул желаемой детали.",
@@ -61,6 +64,20 @@ async def get_producer(message: types.Message, state: FSMContext, bot: Bot):
         return
 
     else:
+        if os.path.exists(f"data/{message.from_user.id}_data.json"):
+
+            with open(f"data/{message.from_user.id}_data.json", "r") as file:
+                data = json.loads(file.read())
+            choosed_producer = f"https://avtopartner.online/auto/search/?q={message.text}&s=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C"
+            text = await get_params(data=data[choosed_producer])
+            await state.update_data(choosed_producer=choosed_producer)
+            await state.set_state(SGetDetail.choose_item)
+            await clock_message.edit_text(
+                text=text,
+                reply_markup=menu.choose_item_key_without_producer()
+            )
+            return
+
         with open(f"data/{message.from_user.id}_data_links.json", "r") as file:
             data = json.loads(file.read())
 
@@ -87,7 +104,13 @@ async def choose_detail(callback: types.CallbackQuery, state: FSMContext):
             choosed_producer = key
             break
     print(choosed_producer)
-    await DatabaseAPI.get_data_by_link(telegram_id=callback.from_user.id, link=choosed_producer)
+    result = await DatabaseAPI.get_data_by_link(telegram_id=callback.from_user.id, link=choosed_producer)
+    if not result:
+        await callback.answer(
+            "У данного производителя нет деталей с таким артикулом в наличии, выберите другого производителя.",
+            show_alert=True
+        )
+        return
     with open(f"data/{callback.from_user.id}_data.json", "r") as file:
         data = json.loads(file.read())
     if data == {}:
@@ -401,7 +424,7 @@ async def send_photo_to_admin(message: types.Message,
     await state.clear()
 
 
-@detail_router.callback_query(F.data.contains("accept_"))
+@detail_router.callback_query(F.data.startswith("accept_"))
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
     group_id = await DatabaseAPI.get_channel_id()
@@ -428,7 +451,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
                                         reply_markup=menu.key_finish_order(user_id=user_id))
 
 
-@detail_router.callback_query(F.data.contains("finish_"))
+@detail_router.callback_query(F.data.startswith("finish_"))
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
@@ -451,7 +474,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
     await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
 
 
-@detail_router.callback_query(F.data.contains("break_"))
+@detail_router.callback_query(F.data.startswith("break_"))
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
     group_id = await DatabaseAPI.get_channel_id()

@@ -17,8 +17,6 @@ from utils.params_busket import get_price_with_percent
 
 from .get_detail import SGetDetail
 
-
-
 busket_router = Router()
 
 
@@ -185,7 +183,39 @@ async def delete_item(callback: types.CallbackQuery):
 
 @busket_router.callback_query(F.data == "buy_from_busket")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
+    waiting_text = await callback.message.edit_text("Проверяем наличие товаров и изменение цены⏳")
 
+    text = await Busket.check_updates(user_id=callback.from_user.id, state=state)
+    if text == "":
+
+        warning_text = await DatabaseAPI.get_warning_text()
+        if warning_text:
+            await state.set_state(SBusket.order_only)
+            warning_text = warning_text
+            await callback.message.edit_text(
+                text=warning_text,
+                reply_markup=menu.key_order_busket()
+            )
+        else:
+            await state.set_state(SBusket.point_pickup)
+            points = await DatabaseAPI.get_points()
+            text = "Выберите пункт самовывоза⬇️"
+            await callback.message.edit_text(
+                text=text,
+                reply_markup=menu.key_points_basket(points=points)
+            )
+    else:
+        text += "При нажатии на кнопку продолжится оформление заказа обновлённой корзины."
+        builder = InlineKeyboardBuilder()
+        builder.button(text='Продолжить', callback_data="continue_buy_busket")
+        builder.button(text="Меню", callback_data="go_menu")
+        builder.adjust(1)
+        await waiting_text.delete()
+        await callback.message.answer(text=text,
+                                      reply_markup=builder.as_markup())
+
+@busket_router.callback_query(F.data == "continue_buy_busket")
+async def get_point(callback: types.CallbackQuery, state: FSMContext):
     warning_text = await DatabaseAPI.get_warning_text()
     if warning_text:
         await state.set_state(SBusket.order_only)
@@ -203,7 +233,6 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
             reply_markup=menu.key_points_basket(points=points)
         )
 
-
 @busket_router.callback_query(SBusket.order_only, F.data=="go_order")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
 
@@ -215,27 +244,28 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
         reply_markup=menu.key_points_basket(points=points)
     )
 
-@busket_router.callback_query(SBusket.point_pickup, F.data == "get_basket")
-async def content_busket(callback: types.CallbackQuery,
-                         is_empty,
-                         state: FSMContext):
-    print("Ворк")
-    try:
-        if is_empty:
-            await callback.answer("Корзина пуста", show_alert=True)
-        else:
 
-            result = await Busket.get_items(user_id=callback.from_user.id, state=state)
-            text = result[0]
-            keyboard = result[1]
-            text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
-            await callback.message.delete()
-            await callback.message.answer(
-                text=text,
-                reply_markup=keyboard
-            )
-    except Exception as ex:
-        print(ex)
+# @busket_router.callback_query(SBusket.point_pickup, F.data == "get_basket")
+# async def content_busket_(callback: types.CallbackQuery,
+#                          is_empty,
+#                          state: FSMContext):
+#     print("Ворк")
+#     try:
+#         if is_empty:
+#             await callback.answer("Корзина пуста", show_alert=True)
+#         else:
+#
+#             result = await Busket.get_items(user_id=callback.from_user.id, state=state)
+#             text = result[0]
+#             keyboard = result[1]
+#             text += "\n\nДля удаления товара из корзины нажмите на название товара снизу⬇️"
+#             await callback.message.delete()
+#             await callback.message.answer(
+#                 text=text,
+#                 reply_markup=keyboard
+#             )
+#     except Exception as ex:
+#         print(ex)
 
 @busket_router.callback_query(SBusket.point_pickup)
 async def get_contacts(callback: types.CallbackQuery,
@@ -318,19 +348,24 @@ async def get_note(message: types.Message,
 async def send_photo_to_admin(callback: types.Message,
                               state: FSMContext,
                               bot: Bot):
+    print("Ворк")
     state_data = await state.get_data()
     # group_id = await DatabaseAPI.get_channel_id()
     text_order = await get_params_busket(user_id=callback.from_user.id,
                                          state=state)
+    print("Ворк")
     photo_id = state_data["photo_id"]
     caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n\n</b>" + text_order + \
         f"Клиент:\n" \
         f"Телефон: {state_data['phone']}\n" \
-        f"Имя: {state_data['name']}\n\n"
+        f"Имя: {state_data['name']}\n\n" \
+        f"Сумма заказа: {state_data['cost_of_busket']}\n\n"
+    print("Ворк2")
     result = await Busket.add_order_to_db(user_id=callback.from_user.id,
                                           state_data=await state.get_data(),
                                           bot=bot,
                                           text=text_order)
+    print("Ворк3")
 
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
@@ -348,12 +383,13 @@ async def send_photo_to_admin(callback: types.Message,
         )
     except:
         pass
+    await Busket.clear_busket(user_id=callback.from_user.id)
     await callback.message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
                                   reply_markup=menu.go_menu())
     await state.clear()
 
 
-@busket_router.message(SBusket.note)
+@busket_router.message(SBusket.note, F.text)
 async def send_photo_to_admin(message: types.Message,
                               state: FSMContext,
                               bot: Bot):
@@ -365,10 +401,12 @@ async def send_photo_to_admin(message: types.Message,
     await state.update_data(note=note)
     photo_id = state_data["photo_id"]
     caption = "<b>❗️НОВАЯ ЗАЯВКА (корзина)❗️\n\n</b>" + text_order + \
+              f"Сумма заказа: {state_data['cost_of_busket']}\n\n" \
               f"Клиент:\n" \
               f"Телефон: {state_data['phone']}\n" \
               f"Имя: {state_data['name']}\n" \
-              f"Комментарий к заказу: {note}\n\n"
+              f"Комментарий к заказу: {note}\n\n" \
+              f"Сумма заказа: {state_data['cost_of_busket']}\n\n"
     result = await Busket.add_order_to_db(user_id=message.from_user.id,
                                           state_data=await state.get_data(),
                                           bot=bot,
@@ -390,90 +428,105 @@ async def send_photo_to_admin(message: types.Message,
         )
     except:
         pass
+    await Busket.clear_busket(user_id=message.from_user.id)
     await message.answer("Ваша заявка на покупку отправлена и обрабатывается, ожидайте.",
                          reply_markup=menu.go_menu())
     await state.clear()
 
 
-@busket_router.callback_query(F.data.contains("accept_busket"))
+@busket_router.callback_query(F.data.startswith("busket_accept"))
 async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
+    print("Ворк")
     # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
     user_id = callback.data.split("_")[-1]
     id_order = callback.data.split("_")[-2]
     await DatabaseAPI.update_approve(id_order=id_order)
     text = callback.message.caption
+    pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
+    point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
+    print(text)
     for link in order["link_item"].split(","):
-        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+        print("Ссылка - Товар" in text)
+        text = text.replace("Ссылка - Товар", f"Ссылка - <a href='{link.strip()}'>Товар</a>", 1).lstrip()
+        print(text)
 
-    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    pattern = re.compile(r'ТОВАР.*?Склад', re.DOTALL)
     result = ""
     results = re.findall(pattern, text)
     for result_ in results:
-        print(result_)
+        # print(result_)
         result += result_.replace("Склад", "") + "\n"
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
     print(result)
-    return
-    
+    # return
+
     text_ += result
+    text_ += f"\n{point_}"
     await bot.send_message(
         chat_id=user_id,
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅",
+    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅ (корзина)",
                                         reply_markup=menu.key_finish_order_busket(user_id=user_id))
 
 
-@busket_router.callback_query(F.data.contains("finish_busket"))
+@busket_router.callback_query(F.data.startswith("busket_finish"))
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
     group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
     text = callback.message.caption
+    pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
+    point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
     for link in order["link_item"].split(","):
-        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+        text = text.replace("Ссылка - Товар", f"Ссылка - <a href='{link.strip()}'>Товар</a>", 1).lstrip()
+        print(text)
     # print(text)
     text_ = "<b>ВАШ ЗАКАЗ ДОСТАВЛЕН В ПУНКТ ВЫДАЧИ</b>\n\n"
     # print(result)
-    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    pattern = re.compile(r'ТОВАР.*?Склад', re.DOTALL)
     result = ""
     results = re.findall(pattern, text)
     for result_ in results:
         result += result_.replace("Склад", "") + "\n"
     text_ += result
+    text_ += f"\n{point_}"
     await bot.send_message(
         chat_id=user_id,
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅ (корзина)")
 
 
-@busket_router.callback_query(F.data.contains("break_busket"))
+@busket_router.callback_query(F.data.startswith("busket_break"))
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
     group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
     text = callback.message.caption
+    pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
+    point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
     for link in order["link_item"].split(","):
-        text.replace("Ссылка - Товар", f"Ссылка - <a href='{link}'>Товар</a>", 1)
+        text = text.replace("Ссылка - Товар", f"Ссылка - <a href='{link.strip()}'>Товар</a>", 1).lstrip()
     # print(text)
     text_ = "<b>ВАШ ЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ</b>\n\n"
     # print(result)
-    pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
+    pattern = re.compile(r'ТОВАР.*?Склад', re.DOTALL)
     result = ""
     results = re.findall(pattern, text)
     for result_ in results:
         result += result_.replace("Склад", "") + "\n"
     text_ += result
+    text_ += f"\n{point_}"
     await bot.send_message(
         chat_id=user_id,
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅")
+    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ❌ (корзина)")

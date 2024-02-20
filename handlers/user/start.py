@@ -1,4 +1,5 @@
 from aiogram import Router, types, Bot, F
+from aiogram.filters import StateFilter
 from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
 
@@ -12,7 +13,7 @@ from filters import ChatTypeFilter
 start_router = Router()
 
 
-@start_router.callback_query(F.data == "go_menu")
+@start_router.callback_query(StateFilter("*"), F.data == "go_menu")
 async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     await state.clear()
     if os.path.exists(f"data/{callback.from_user.id}_data.json"):

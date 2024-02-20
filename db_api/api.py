@@ -25,6 +25,7 @@ class DatabaseAPI(object):
 
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         print(data)
 
         if len(data["data"]) == 0:
@@ -51,6 +52,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
 
             await session.post(url=url, json=body)
+            await session.close()
 
     @staticmethod
     async def get_about_company():
@@ -66,6 +68,7 @@ class DatabaseAPI(object):
 
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         print(data)
         return data["data"][0]["value"]
 
@@ -82,6 +85,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         print(data)
         return data["data"][0]["value"]
 
@@ -98,15 +102,20 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url_login)
             data = await response.json()
-        login = data["data"][0]["value"]
-        url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
-        async with aiohttp.ClientSession(headers=headers) as session:
+            login = data["data"][0]["value"]
+            url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
+
             response = await session.get(url=url_password)
             data = await response.json()
-        password = data["data"][0]["value"]
+            password = data["data"][0]["value"]
+            await session.close()
         links = get_links(article=article, username=login, password=password)
         if links is None or links == {}:
-            return False
+            data_link = await DatabaseAPI.get_data_by_link(link=f"https://avtopartner.online/auto/search/?q={article}&s=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C", telegram_id=telegram_id)
+            if not data_link:
+                return False
+            else:
+                return True
         else:
             with open(f"data/{telegram_id}_data_links.json", "w") as file:
                 json.dump(links, file, ensure_ascii=False, indent=4)
@@ -125,15 +134,18 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url_login)
             data = await response.json()
-        login = data["data"][0]["value"]
-        url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
-        async with aiohttp.ClientSession(headers=headers) as session:
+            login = data["data"][0]["value"]
+            url_password = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=password"
             response = await session.get(url=url_password)
             data = await response.json()
-        password = data["data"][0]["value"]
+            password = data["data"][0]["value"]
+            await session.close()
         result = items(username=login, password=password, link=link)
+        if result == {}:
+            return False
         with open(f"data/{telegram_id}_data.json", "w") as file:
             json.dump(result, file, ensure_ascii=False, indent=4)
+        return True
 
     @staticmethod
     async def get_percent():
@@ -148,6 +160,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         return data["data"][0]["value"]
 
     @staticmethod
@@ -164,6 +177,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         return data["data"]
 
     @staticmethod
@@ -179,6 +193,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         return data["data"][0]["value"]
 
     @staticmethod
@@ -194,6 +209,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         return data["data"][0]["value"]
 
     @staticmethod
@@ -209,6 +225,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.get(url=url)
             data = await response.json()
+            await session.close()
         return data["data"][0]["value"]
 
     @staticmethod
@@ -234,6 +251,7 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.post(url=url, json=body)
             data = await response.json()
+            await session.close()
         print(f"Данные о добавлении заказа: {data}")
         # await bot.send_message(
         #     chat_id=1878562358,
@@ -259,6 +277,7 @@ class DatabaseAPI(object):
         url = f"{DIRECTUS_API_URL}/items/autogait_orders/{id_order}"
         async with aiohttp.ClientSession(headers=headers) as session:
             await session.patch(url=url, json=body)
+            await session.close()
 
     @staticmethod
     async def set_contact(phone, user_id):

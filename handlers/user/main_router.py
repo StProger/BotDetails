@@ -17,7 +17,7 @@ main_router_user = Router()
 grorup_router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
 start_router.message.middleware(CheckUser())
 get_busket_router.callback_query.middleware(BusketIsEmpty())
-busket_router.callback_query.middleware(BusketIsEmpty())
+# busket_router.callback_query.middleware(BusketIsEmpty())
 # start_router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
 main_router_user.include_routers(
     start_router,
