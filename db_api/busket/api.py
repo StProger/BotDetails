@@ -273,7 +273,8 @@ class Busket(object):
             "price_with_percent": price
         }
         async with aiohttp.ClientSession(headers=cls.headers) as session:
-            await session.patch(url=url, json=body)
+            response = await session.patch(url=url, json=body)
+            print(await response.json())
             await session.close()
 
 
