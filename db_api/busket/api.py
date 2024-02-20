@@ -267,7 +267,7 @@ class Busket(object):
 
     @classmethod
     async def update_price(cls, item_id, price):
-
+        print(price)
         url = f"{DIRECTUS_API_URL}/items/autogait_cart/{item_id}"
         body = {
             "price_with_percent": price
