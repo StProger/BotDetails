@@ -89,7 +89,7 @@ class Busket(object):
                 sum_ = 0
                 for index, item in enumerate(data["data"]):
                     builder.button(text=f"{index + 1}", callback_data=f"drop_busket_{item['id']}")
-                    text += f"{index+1}. {item['product']['Названия']}\n"
+                    text += f"{index+1}. {item['product']['Названия']} {item['count_item']}\n"
                     sum_ += int(item["price_with_percent"])
                 await state.update_data(cost_of_busket=sum_)
                 text += f"\n" \
@@ -178,13 +178,14 @@ class Busket(object):
             result = update_item(username=login,
                                  password=password,
                                  link=item["link_item"])
-
+            found = False
             for sub_item in result[item["link_item"]]:
                 if item["product"]["Артикул"] == sub_item["Артикул"] and \
                         item["product"]["Названия"] == sub_item["Названия"] and \
                         item["product"]["Марка"] == sub_item["Марка"] and \
                         item["product"]["Склад"] == sub_item["Склад"] and \
                         item["product"]["original"] == sub_item["original"]:
+                    found = True
                     if int(sub_item["В наличии"]) == 0:
                         text += f"Товара {item['product']['Названия']} нет в наличии\n"
                         # Сделать логику удаленяи товара
@@ -206,6 +207,8 @@ class Busket(object):
                             cost_order = state_data["cost_of_busket"]
                             cost_order += int(price_item) * int(item['count_item']) - int(item["price_with_percent"])
                             await state.update_data(cost_of_busket=cost_order)
+                if found:
+                    break
         if text == "":
             return text
         else:
