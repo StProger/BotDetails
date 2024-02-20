@@ -203,9 +203,12 @@ class Busket(object):
                             text += f"Общая цена за {item['product']['Названия']} изменилась с {int(item['price_with_percent'])} " \
                                     f"на {int(price_item) * item['count_item']}\n"
                             # Сделать логику изменения цены товара в бд
+                            print("Обновляю цену")
                             await cls.update_price(item_id=item['id'], price=price_item*item['count_item'])
                             cost_order = state_data["cost_of_busket"]
+                            print(f"Old: {cost_order}")
                             cost_order += (int(price_item) * int(item['count_item'])) - int(item["price_with_percent"])
+                            print(f"New: {cost_order}")
                             await state.update_data(cost_of_busket=cost_order)
                 if found:
                     break
