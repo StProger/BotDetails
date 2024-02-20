@@ -412,7 +412,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     results = re.findall(pattern, text)
     for result_ in results:
         print(result_)
-        result +=  result_.replace("Склад", "") + "\n"
+        result += result_.replace("Склад", "") + "\n"
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
 
     text_ += result
