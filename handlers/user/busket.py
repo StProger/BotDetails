@@ -416,6 +416,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     text_ = "<b>✅ВАША ЗАЯВКА ОДОБРЕНА✅</b>\n\n"
     print(result)
     return
+    
     text_ += result
     await bot.send_message(
         chat_id=user_id,
