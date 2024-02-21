@@ -186,7 +186,12 @@ class Busket(object):
 
             availability = int(result["availability"])
             price_item = float("".join(i for i in result["price"].split()[:-1])) * ((float(percent) + 100) / 100)
-
+            print(f"PRICE ITEM: {price_item}")
+            print(f"INT PRICE ITEM: {int(price_item)}")
+            print(f"REALY PRICE ITEM: {item['price_with_percent']}")
+            print(f"TYPE REALLY PRICE: {type(item['price_with_percent'])}")
+            print(f"TYPE PRICE ITEM: {type(int(price_item))}")
+            print(f"INT PRICE ITEM != REALY PRICE ITEM: {(int(price_item) * item['count_item']) != int(item['price_with_percent'])}")
             # Проверка, что товара нет в наличии
             if availability == 0:
                 text += f"Товара {item['product']['Названия']} нет в наличии\n"
@@ -202,7 +207,7 @@ class Busket(object):
                 continue
 
             # Проверка на изменение цены на товар
-            elif int(price_item) * item['count_item'] != item["price_with_percent"]:
+            elif (int(price_item) * item['count_item']) != int(item["price_with_percent"]):
 
                 text += f"Общая цена за {item['product']['Названия']} изменилась с {int(item['price_with_percent'])} " \
                         f"на {int(price_item) * item['count_item']}\n"
