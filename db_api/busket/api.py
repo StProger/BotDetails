@@ -13,6 +13,8 @@ from aiogram.types import InlineKeyboardButton
 from db_api.api import DatabaseAPI
 from scrap_details import items as update_item
 
+from utils.check_diference import get_availability_and_price
+
 
 class Busket(object):
 
@@ -175,43 +177,45 @@ class Busket(object):
         percent = await DatabaseAPI.get_percent()
         for item in data["data"]:
 
-            result = update_item(username=login,
-                                 password=password,
-                                 link=item["link_item"])
-            found = False
-            for sub_item in result[item["link_item"]]:
-                if item["product"]["Артикул"] == sub_item["Артикул"] and \
-                        item["product"]["Названия"] == sub_item["Названия"] and \
-                        item["product"]["Марка"] == sub_item["Марка"] and \
-                        item["product"]["Склад"] == sub_item["Склад"] and \
-                        item["product"]["original"] == sub_item["original"]:
-                    found = True
-                    if int(sub_item["В наличии"]) == 0:
-                        text += f"Товара {item['product']['Названия']} нет в наличии\n"
-                        # Сделать логику удаленяи товара
-                        list_for_delete.append(item["id"])
+            result = get_availability_and_price(link=item["link_item"],
+                                                product_id=item["product"]['product_id'],
+                                                username=login,
+                                                password=password)
+            if result["availability"] is None or result["price"] is None:
+                continue
 
-                    elif int(sub_item["В наличии"]) < item["count_item"]:
-                        text += f"Товара {item['product']['Названия']} недостаточно на складе\n"
-                        list_for_delete.append(item['id'])
+            availability = int(result["availability"])
+            price_item = float("".join(i for i in result["price"].split()[:-1])) * ((float(percent) + 100) / 100)
 
-                    else:
-                        # Проверяем изменение цены
-                        price_item = float("".join(i for i in sub_item["Цена"].split()[:-1])) * ((float(percent) + 100) / 100)
-                        if int(price_item) * item['count_item'] != int(item["price_with_percent"]):
+            # Проверка, что товара нет в наличии
+            if availability == 0:
+                text += f"Товара {item['product']['Названия']} нет в наличии\n"
+                # Сделать логику удаленяи товара
+                list_for_delete.append(item["id"])
+                continue
 
-                            text += f"Общая цена за {item['product']['Названия']} изменилась с {int(item['price_with_percent'])} " \
-                                    f"на {int(price_item) * item['count_item']}\n"
-                            # Сделать логику изменения цены товара в бд
-                            print("Обновляю цену")
-                            await cls.update_price(item_id=item['id'], price=price_item*item['count_item'])
-                            cost_order = state_data["cost_of_busket"]
-                            print(f"Old: {cost_order}")
-                            cost_order += (int(price_item) * int(item['count_item'])) - int(item["price_with_percent"])
-                            print(f"New: {cost_order}")
-                            await state.update_data(cost_of_busket=cost_order)
-                if found:
-                    break
+            # Проверка, что товара недостаточно
+            elif availability < item["count_item"]:
+
+                text += f"Товара {item['product']['Названия']} недостаточно на складе\n"
+                list_for_delete.append(item['id'])
+                continue
+
+            # Проверка на изменение цены на товар
+            elif int(price_item) * item['count_item'] != item["price_with_percent"]:
+
+                text += f"Общая цена за {item['product']['Названия']} изменилась с {int(item['price_with_percent'])} " \
+                        f"на {int(price_item) * item['count_item']}\n"
+                # Сделать логику изменения цены товара в бд
+                print("Обновляю цену")
+                await cls.update_price(item_id=item['id'], price=int(price_item) * item['count_item'])
+                cost_order = state_data["cost_of_busket"]
+                print(f"Old: {cost_order}")
+                cost_order += (int(price_item) * int(item['count_item'])) - int(item["price_with_percent"])
+                print(f"New: {cost_order}")
+                await state.update_data(cost_of_busket=cost_order)
+                continue
+
         if text == "":
             return text
         else:

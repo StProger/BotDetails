@@ -216,6 +216,18 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
 
 @busket_router.callback_query(F.data == "continue_buy_busket")
 async def get_point(callback: types.CallbackQuery, state: FSMContext):
+    state_data = await state.get_data()
+    list_for_delete = state_data["list_for_delete"]
+    for item_id in list_for_delete:
+        await Busket.delete_item(item_id=item_id)
+        print(f"Delete item form basket | {item_id}")
+    count_item_after_delete = await Busket.count_items(user_id=callback.from_user.id)
+    if count_item_after_delete == 0:
+        await callback.message.edit_text(
+            text="Ваша корзина пуста",
+            reply_markup=menu.go_menu()
+        )
+        return
     warning_text = await DatabaseAPI.get_warning_text()
     if warning_text:
         await state.set_state(SBusket.order_only)

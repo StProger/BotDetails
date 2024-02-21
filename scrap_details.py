@@ -1,8 +1,6 @@
 from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
-import requests
-import json
-from concurrent.futures import ThreadPoolExecutor
+import requests, re
 
 import time
 
@@ -33,6 +31,22 @@ def get_data_by_link(session: requests.Session, link: str) -> list or None:
             trs = table.find_next("table", class_="lm-auto-search-parts").select("tr.hproduct")
 
             for tr in trs[0:3]:
+
+                buy_button = tr.select_one("a.btn.btn-mini")
+                onclick_text = buy_button.get('onclick', '')
+                # print(onclick_text)
+                hash_match = re.search(r"extra%5Bhash%5D=([\da-fA-F]+)", onclick_text)
+                if hash_match:
+                    product_id = hash_match.group(1)
+                else:
+                    # Попытка извлечь part_id и supplier_id, если хэш отсутствует
+                    part_id_match = re.search(r"part_id=(\d+)", onclick_text)
+                    supplier_id_match = re.search(r"supplier_id=(\d+)", onclick_text)
+                    part_id = part_id_match.group(1) if part_id_match else 'Недоступно'
+                    supplier_id = supplier_id_match.group(1) if supplier_id_match else 'Недоступно'
+                    product_id = f"part_id: {part_id}, supplier_id: {supplier_id}"
+
+
                 data.append({
                     "Названия бренда": get_attr_from_link(link, "brand_title"),
                     "В наличии": tr.select_one("td.instock").text.replace(tr.select_one("td.instock time").text,
@@ -47,7 +61,8 @@ def get_data_by_link(session: requests.Session, link: str) -> list or None:
                     "Бокс": tr.select("td.fn")[0].text.strip("\n").strip(),
                     "Названия": tr.select("td.fn")[1].text.strip("\n").strip(),
                     "Стат. отк.": tr.select_one("div.piechart").text.strip("\n").strip(),
-                    "original": is_original
+                    "original": is_original,
+                    "product_id": product_id
                 })
 
         data = data[0:3]
