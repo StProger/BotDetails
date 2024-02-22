@@ -362,7 +362,7 @@ async def send_photo_to_admin(callback: types.Message,
                               bot: Bot):
     print("Ворк")
     state_data = await state.get_data()
-    # group_id = await DatabaseAPI.get_channel_id()
+    group_id = await DatabaseAPI.get_channel_id()
     text_order = await get_params_busket(user_id=callback.from_user.id,
                                          state=state)
     print("Ворк")
@@ -382,12 +382,12 @@ async def send_photo_to_admin(callback: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
     await bot.send_photo(
-        chat_id=-4199222135,
+        chat_id=group_id,
         photo=photo_id,
         caption="❗️👇🏽ЧЕК К ЗАКАЗУ👇🏽❗️"
     )
     mes = await bot.send_message(
-        chat_id=-4199222135,
+        chat_id=group_id,
         text=caption,
         reply_markup=menu.key_accept_order_busket(user_id=callback.from_user.id, id_order=id_order),
         disable_web_page_preview=True
@@ -411,7 +411,7 @@ async def send_photo_to_admin(message: types.Message,
                               state: FSMContext,
                               bot: Bot):
     state_data = await state.get_data()
-    # group_id = await DatabaseAPI.get_channel_id()
+    group_id = await DatabaseAPI.get_channel_id()
     text_order = await get_params_busket(user_id=message.from_user.id,
                                          state=state)
     note = message.text
@@ -432,12 +432,12 @@ async def send_photo_to_admin(message: types.Message,
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
     await bot.send_photo(
-        chat_id=-4199222135,
+        chat_id=group_id,
         photo=photo_id,
         caption="❗️👇🏽ЧЕК К ЗАКАЗУ👇🏽❗️"
     )
     mes = await bot.send_message(
-        chat_id=-4199222135,
+        chat_id=group_id,
         text=caption,
         reply_markup=menu.key_accept_order_busket(user_id=message.from_user.id, id_order=id_order),
         disable_web_page_preview=True
@@ -500,7 +500,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
-    group_id = await DatabaseAPI.get_channel_id()
+    # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
     text = callback.message.text
     pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
@@ -531,7 +531,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
     user_id = callback.data.split("_")[-1]
-    group_id = await DatabaseAPI.get_channel_id()
+    # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
     text = callback.message.caption
     pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
