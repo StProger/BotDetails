@@ -17,8 +17,8 @@ async def set_number_order(message: types.Message, bot: Bot):
     if not message.reply_to_message:
         return
     else:
-        if "корзина" not in message.reply_to_message.caption:
-            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.caption:
+        if "корзина" not in message.reply_to_message.text:
+            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.text:
                 await message.reply("Данному заказу уже присвоен номер.")
                 return
             number_order = message.text
@@ -43,12 +43,13 @@ async def set_number_order(message: types.Message, bot: Bot):
                 text=text_,
                 reply_markup=menu.key_menu_after_success()
             )
-            await message.reply_to_message.edit_caption(caption=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
-                                                        reply_markup=menu.key_after_set_number(user_id=user_id,
+            await message.reply_to_message.edit_text(text=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
+                                                     reply_markup=menu.key_after_set_number(user_id=user_id,
                                                                                                order_id=order_id,
-                                                                                               caption=text))
+                                                                                               caption=text),
+                                                     disable_web_page_preview=True)
         else:
-            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.caption:
+            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.text:
                 await message.reply("Данному заказу уже присвоен номер.")
                 return
             number_order = message.text
@@ -63,7 +64,7 @@ async def set_number_order(message: types.Message, bot: Bot):
             await DatabaseAPI.update_order_number(order_number=number_order,
                                                   order_id=order_id)
             print("Добавил номер заказа с сайта")
-            text = message.reply_to_message.caption
+            text = message.reply_to_message.text
             pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
             point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
             for link in order["link_item"].split(","):
@@ -85,9 +86,10 @@ async def set_number_order(message: types.Message, bot: Bot):
                 text=text_,
                 reply_markup=menu.key_menu_after_success()
             )
-            await message.reply_to_message.edit_caption(caption=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
-                                                        reply_markup=menu.key_after_set_number_basket(user_id=user_id,
+            await message.reply_to_message.edit_text(text=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
+                                                     reply_markup=menu.key_after_set_number_basket(user_id=user_id,
                                                                                                       order_id=order_id,
-                                                                                                      caption=text))
+                                                                                                      caption=text),
+                                                     disable_web_page_preview=True)
 
 

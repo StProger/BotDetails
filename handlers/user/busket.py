@@ -381,11 +381,16 @@ async def send_photo_to_admin(callback: types.Message,
 
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
-    mes = await bot.send_photo(
+    await bot.send_photo(
         chat_id=-4199222135,
         photo=photo_id,
-        caption=caption,
-        reply_markup=menu.key_accept_order_busket(user_id=callback.from_user.id, id_order=id_order)
+        caption="❗️👇🏽ЧЕК К ЗАКАЗУ👇🏽❗️"
+    )
+    mes = await bot.send_message(
+        chat_id=-4199222135,
+        text=caption,
+        reply_markup=menu.key_accept_order_busket(user_id=callback.from_user.id, id_order=id_order),
+        disable_web_page_preview=True
     )
     await DatabaseAPI.update_url_order(id_order=id_order, link=mes.message_id)
     try:
@@ -426,11 +431,16 @@ async def send_photo_to_admin(message: types.Message,
 
     id_order = result["id"]
     caption += f"Номер заказа: #{id_order}"
-    mes = await bot.send_photo(
+    await bot.send_photo(
         chat_id=-4199222135,
         photo=photo_id,
-        caption=caption,
-        reply_markup=menu.key_accept_order_busket(user_id=message.from_user.id, id_order=id_order)
+        caption="❗️👇🏽ЧЕК К ЗАКАЗУ👇🏽❗️"
+    )
+    mes = await bot.send_message(
+        chat_id=-4199222135,
+        text=caption,
+        reply_markup=menu.key_accept_order_busket(user_id=message.from_user.id, id_order=id_order),
+        disable_web_page_preview=True
     )
     await DatabaseAPI.update_url_order(id_order=id_order, link=mes.message_id)
     try:
@@ -455,7 +465,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
     id_order = callback.data.split("_")[-2]
     await DatabaseAPI.update_approve(id_order=id_order)
-    text = callback.message.caption
+    text = callback.message.text
     pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
     point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
     print(text)
@@ -481,8 +491,9 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗаявка одобрена✅ (корзина)",
-                                        reply_markup=menu.key_finish_order_busket(user_id=user_id))
+    await callback.message.edit_text(text=f"{text}\n\nЗаявка одобрена✅ (корзина)",
+                                     reply_markup=menu.key_finish_order_busket(user_id=user_id),
+                                     disable_web_page_preview=True)
 
 
 @busket_router.callback_query(F.data.startswith("busket_finish"))
@@ -491,7 +502,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
     group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
-    text = callback.message.caption
+    text = callback.message.text
     pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
     point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
     for link in order["link_item"].split(","):
@@ -512,7 +523,8 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅ (корзина)")
+    await callback.message.edit_text(text=f"{text}\n\nЗАКАЗ ВЫПОЛНЕН✅ (корзина)",
+                                     disable_web_page_preview=True)
 
 
 @busket_router.callback_query(F.data.startswith("busket_break"))
@@ -541,4 +553,5 @@ async def break_order(callback: types.CallbackQuery, bot: Bot):
         text=text_,
         reply_markup=menu.key_menu_after_success()
     )
-    await callback.message.edit_caption(caption=f"{text}\n\nЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ❌ (корзина)")
+    await callback.message.edit_text(text=f"{text}\n\nЗАКАЗ ОТМЕНЁН ПОСТАВЩИКОМ❌ (корзина)",
+                                     disable_web_page_preview=True)
