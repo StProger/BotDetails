@@ -391,3 +391,17 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             await session.patch(url=url, json=body)
 
+    @staticmethod
+    async def get_instruction():
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_settings?filter[key][_eq]=instruction"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["value"]

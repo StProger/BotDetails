@@ -176,6 +176,11 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     )
     builder.row(
         types.InlineKeyboardButton(
+            text="Корзина", callback_data="get_basket"
+        )
+    )
+    builder.row(
+        types.InlineKeyboardButton(
             text="Назад", callback_data="back_to_choose_detail"
         ),
         types.InlineKeyboardButton(

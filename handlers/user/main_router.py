@@ -7,6 +7,7 @@ from .group import grorup_router
 from .busket import busket_router
 from .get_busket import get_busket_router
 from .buy_busket import order_busket
+from .instruction import instr_router
 
 from middlewares import CheckUser, BusketIsEmpty
 
@@ -26,5 +27,6 @@ main_router_user.include_routers(
     grorup_router,
     busket_router,
     get_busket_router,
-    order_busket
+    order_busket,
+    instr_router
 )

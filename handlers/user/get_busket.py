@@ -25,12 +25,11 @@ get_busket_router = Router()
 async def content_busket(callback: types.CallbackQuery,
                          is_empty,
                          state: FSMContext):
-    await state.clear()
     try:
         if is_empty:
             await callback.answer("Корзина пуста", show_alert=True)
         else:
-
+            await state.clear()
             result = await Busket.get_items(user_id=callback.from_user.id, state=state)
             text = result[0]
             keyboard = result[1]
