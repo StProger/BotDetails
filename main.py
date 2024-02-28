@@ -17,7 +17,7 @@ async def main():
 
     bot = Bot(token=TOKEN_BOT, parse_mode="HTML")
     dp = Dispatcher(storage=RedisStorage(redis=aioredis.from_url(REDIS_URL)))
-    await bot(DeleteWebhook(drop_pending_updates=True))
+    await bot(DeleteWebhook())
     dp.include_routers(
         main_router_user
     )

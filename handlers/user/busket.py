@@ -533,7 +533,7 @@ async def break_order(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
-    text = callback.message.caption
+    text = callback.message.text
     pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
     point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
     for link in order["link_item"].split(","):
