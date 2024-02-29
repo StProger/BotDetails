@@ -16,13 +16,14 @@ async def set_number_order(message: types.Message, bot: Bot):
     have_basket = False
     if message.reply_to_message.text is not None:
         have_basket = True
-
+    print(f"Заказ из корзины: {have_basket}")
 
     if not message.reply_to_message:
         return
     else:
         if not have_basket:
-            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.text:
+            print("Заказ не из корзины")
+            if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.caption:
                 await message.reply("Данному заказу уже присвоен номер.")
                 return
             number_order = message.text
@@ -38,20 +39,27 @@ async def set_number_order(message: types.Message, bot: Bot):
                                                   order_id=order_id)
             print("Добавил номер заказа с сайта")
             text = message.reply_to_message.caption.replace("Ссылка - Товар", f"Ссылка - <a href='{link_item}'>Товар</a>")
+            # print(text)
             pattern = re.compile(r'Товар.*?Склад', re.DOTALL)
             text_ = f"<b>ВАШ НОМЕР ЗАКАЗА {number_order}</b>\n\n"
             result = re.search(pattern, text).group(0).replace("Склад", "").strip()
+            # print(result)
             text_ += result
             await bot.send_message(
                 chat_id=user_id,
                 text=text_,
                 reply_markup=menu.key_menu_after_success()
             )
-            await message.reply_to_message.edit_text(text=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
-                                                     reply_markup=menu.key_after_set_number(user_id=user_id,
-                                                                                               order_id=order_id,
-                                                                                               caption=text),
-                                                     disable_web_page_preview=True)
+            print(text)
+            try:
+                await message.reply_to_message.edit_caption(caption=f"{text}\n\nНОМЕР ЗАКАЗА С САЙТА: {number_order}",
+                                                            reply_markup=menu.key_after_set_number(user_id=user_id,
+                                                                                                   order_id=order_id,
+                                                                                                   caption=text),
+                                                            disable_web_page_preview=True
+                                                            )
+            except Exception as ex:
+                print(ex)
         else:
             if "НОМЕР ЗАКАЗА С САЙТА" in message.reply_to_message.text:
                 await message.reply("Данному заказу уже присвоен номер.")
@@ -69,11 +77,12 @@ async def set_number_order(message: types.Message, bot: Bot):
                                                   order_id=order_id)
             print("Добавил номер заказа с сайта")
             text = message.reply_to_message.text
+            print(text)
             pattern = re.compile(r'Пункт самовывоза.*?Клиент', re.DOTALL)
             point_ = re.search(pattern, text).group(0).replace("Клиент", "").strip()
             for link in order["link_item"].split(","):
                 text = text.replace("Ссылка - Товар", f"Ссылка - <a href='{link.strip()}'>Товар</a>", 1).lstrip()
-                print(text)
+
             # print(text)
             text_ = f"<b>ВАШ НОМЕР ЗАКАЗА {number_order}</b>\n\n"
             # print(result)
