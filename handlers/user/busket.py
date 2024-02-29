@@ -307,7 +307,7 @@ async def get_contacts(callback: types.CallbackQuery,
     await state.update_data(mes_del=mes.message_id)
 
 
-@busket_router.callback_query(SBusket.contacts)
+@busket_router.message(SBusket.contacts)
 async def get_photo_pay(message: types.Message,
                         state: FSMContext,
                         bot: Bot):
