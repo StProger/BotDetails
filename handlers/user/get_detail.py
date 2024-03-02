@@ -458,8 +458,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 
 @detail_router.callback_query(F.data.startswith("finish_"))
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
-
-    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
+    order_number = await DatabaseAPI.get_order_number(order_link=callback.message.message_id)
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
     # link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
@@ -485,7 +484,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 @detail_router.callback_query(F.data.startswith("break_"))
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
-    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
+    order_number = await DatabaseAPI.get_order_number(order_link=callback.message.message_id)
     # group_id = await DatabaseAPI.get_channel_id()
     # link_message = f"https://t.me/c/{group_id}/{callback.message.message_id}"
     user_id = callback.data.split("_")[-1]

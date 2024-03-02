@@ -499,7 +499,7 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 @busket_router.callback_query(F.data.startswith("busket_finish"))
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
-    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
+    order_number = await DatabaseAPI.get_order_number(order_link=callback.message.message_id)
 
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
@@ -533,8 +533,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
 @busket_router.callback_query(F.data.startswith("busket_break"))
 async def break_order(callback: types.CallbackQuery, bot: Bot):
-
-    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
+    order_number = await DatabaseAPI.get_order_number(order_link=callback.message.message_id)
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
