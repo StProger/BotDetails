@@ -499,6 +499,8 @@ async def send_confirm(callback: types.CallbackQuery, bot: Bot):
 @busket_router.callback_query(F.data.startswith("busket_finish"))
 async def finish_order(callback: types.CallbackQuery, bot: Bot):
 
+    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
+
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
@@ -518,6 +520,8 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
         result += result_.replace("Склад", "") + "\n"
     text_ += result
     text_ += f"\n{point_}"
+    if order_number is not None:
+        text_ += f"\nНомер заказа: {order_number}"
     await bot.send_message(
         chat_id=user_id,
         text=text_,
@@ -530,6 +534,7 @@ async def finish_order(callback: types.CallbackQuery, bot: Bot):
 @busket_router.callback_query(F.data.startswith("busket_break"))
 async def break_order(callback: types.CallbackQuery, bot: Bot):
 
+    order_number = await DatabaseAPI.get_order_number(user_id=callback.from_user.id)
     user_id = callback.data.split("_")[-1]
     # group_id = await DatabaseAPI.get_channel_id()
     order = await DatabaseAPI.get_order_by_url(url=callback.message.message_id)
@@ -548,6 +553,8 @@ async def break_order(callback: types.CallbackQuery, bot: Bot):
         result += result_.replace("Склад", "") + "\n"
     text_ += result
     text_ += f"\n{point_}"
+    if order_number is not None:
+        text_ += f"\nНомер заказа: {order_number}"
     await bot.send_message(
         chat_id=user_id,
         text=text_,

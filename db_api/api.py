@@ -405,3 +405,21 @@ class DatabaseAPI(object):
             response = await session.get(url=url)
             data = await response.json()
         return data["data"][0]["value"]
+
+    @staticmethod
+    async def get_order_number(user_id):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_orders?filter[telegram_id][_eq]={user_id}"
+        async with aiohttp.ClientSession(headers=headers) as session:
+
+            response = await session.get(url=url)
+            data = await response.json()
+        return data["data"][0]["order_number"]
+
+
