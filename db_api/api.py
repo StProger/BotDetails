@@ -424,3 +424,22 @@ class DatabaseAPI(object):
         return data["data"][0]["order_number"]
 
 
+    @staticmethod
+    async def insert_hash(item, link_item, hash):
+
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+        body = {
+            "product": item,
+            "link_item": link_item,
+            "hash": hash
+        }
+        url = f"{DIRECTUS_API_URL}/items/autogait_hashs"
+        async with aiohttp.ClientSession(headers=headers) as session:
+            response = await session.post(url=url, json=body)
+
+
+
