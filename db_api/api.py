@@ -441,5 +441,23 @@ class DatabaseAPI(object):
         async with aiohttp.ClientSession(headers=headers) as session:
             response = await session.post(url=url, json=body)
 
+    @staticmethod
+    async def get_hash_data(hash_):
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_hashs?filter[hash][_eq]={hash_}"
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        async with aiohttp.ClientSession(headers=headers) as session:
+
+            response = await session.get(url=url)
+
+        data = await response.json(content_type=None)
+
+        return data["data"][0]
+
 
 
