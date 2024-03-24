@@ -159,7 +159,7 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     params_item = await params_select_item(item=choose_detail, state=state)
     await state.update_data(choose_detail=choose_detail, index_detail=callback.data,
                             count_product=1)
-    if callback.from_user.id not in [1878562358]:
+    if callback.from_user.id not in [1878562358, 416600624]:
         builder = InlineKeyboardBuilder()
         builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
         builder.row(
@@ -291,6 +291,7 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
         )
     else:
         await state.set_state(SGetDetail.point_pickup)
+        print("Поставил стейт на выбор пункта")
         points = await DatabaseAPI.get_points()
         text = "Выберите пункт самовывоза⬇️"
         await callback.message.edit_text(
@@ -330,6 +331,7 @@ async def back_to_detail(callback: types.CallbackQuery, state: FSMContext):
 async def get_contacts(callback: types.CallbackQuery,
                        state: FSMContext,
                        bot: Bot):
+    print("Выбрал")
     id_point = callback.data
     address = await DatabaseAPI.get_adress_point(id_point=id_point)
     await state.update_data(address=address)
