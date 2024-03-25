@@ -12,6 +12,7 @@ from db_api.api import DatabaseAPI
 import json
 
 from utils.get_params import get_params, get_params_one_detail, params_select_item
+from utils.get_hash import get_new_hash
 
 
 detail_router = Router()
@@ -158,45 +159,106 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     params_item = await params_select_item(item=choose_detail, state=state)
     await state.update_data(choose_detail=choose_detail, index_detail=callback.data,
                             count_product=1)
-    builder = InlineKeyboardBuilder()
-    builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
-    builder.row(
-        types.InlineKeyboardButton(
-            text="➖", callback_data="minus_item_0"
-        ),
-        types.InlineKeyboardButton(
-            text="1 шт.", callback_data="_"
-        ),
-        types.InlineKeyboardButton(
-            text="➕", callback_data="plus_item_2"
+    if callback.from_user.id not in [1878562358, 416600624]:
+        builder = InlineKeyboardBuilder()
+        builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
+        builder.row(
+            types.InlineKeyboardButton(
+                text="➖", callback_data="minus_item_0"
+            ),
+            types.InlineKeyboardButton(
+                text="1 шт.", callback_data="_"
+            ),
+            types.InlineKeyboardButton(
+                text="➕", callback_data="plus_item_2"
+            )
         )
-    )
-    builder.row(
-        types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
-    )
-    builder.row(
-        types.InlineKeyboardButton(
-            text="Корзина", callback_data="get_basket"
+        builder.row(
+            types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
         )
-    )
-    builder.row(
-        types.InlineKeyboardButton(
-            text="Назад", callback_data="back_to_choose_detail"
-        ),
-        types.InlineKeyboardButton(
-            text="Меню", callback_data="go_menu"
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Корзина", callback_data="get_basket"
+            )
         )
-    )
-    builder.row(
-        types.InlineKeyboardButton(
-            text="Ввести другой артикул", callback_data="get_detail_menu"
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Назад", callback_data="back_to_choose_detail"
+            ),
+            types.InlineKeyboardButton(
+                text="Меню", callback_data="go_menu"
+            )
         )
-    )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Ввести другой артикул", callback_data="get_detail_menu"
+            )
+        )
 
-    await state.set_state(SGetDetail.order)
+        await state.set_state(SGetDetail.order)
+        await callback.message.edit_text(
+            text=params_item,
+            reply_markup=builder.as_markup()
+        )
+    else:
+        builder = InlineKeyboardBuilder()
+        builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
+        builder.row(
+            types.InlineKeyboardButton(
+                text="➖", callback_data="minus_item_0"
+            ),
+            types.InlineKeyboardButton(
+                text="1 шт.", callback_data="_"
+            ),
+            types.InlineKeyboardButton(
+                text="➕", callback_data="plus_item_2"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Корзина", callback_data="get_basket"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Получить хэш", callback_data=f"get_hash_item"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Назад", callback_data="back_to_choose_detail"
+            ),
+            types.InlineKeyboardButton(
+                text="Меню", callback_data="go_menu"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Ввести другой артикул", callback_data="get_detail_menu"
+            )
+        )
+
+        await state.set_state(SGetDetail.order)
+        await callback.message.edit_text(
+            text=params_item,
+            reply_markup=builder.as_markup()
+        )
+
+
+@detail_router.callback_query(SGetDetail.order, F.data == "get_hash_item")
+async def give_hash(callback: types.CallbackQuery, state: FSMContext):
+
+    state_data = await state.get_data()
+    item = state_data["choose_detail"]
+    choosed_producer = state_data["choosed_producer"]
+    hash = get_new_hash()
+    await DatabaseAPI.insert_hash(item=item, link_item=choosed_producer, hash=hash)
     await callback.message.edit_text(
-        text=params_item,
-        reply_markup=builder.as_markup()
+        text=f"Хэш товара: <code>{hash}</code>",
+        parse_mode="HTML"
     )
 
 
@@ -229,6 +291,7 @@ async def get_point(callback: types.CallbackQuery, state: FSMContext):
         )
     else:
         await state.set_state(SGetDetail.point_pickup)
+        print("Поставил стейт на выбор пункта")
         points = await DatabaseAPI.get_points()
         text = "Выберите пункт самовывоза⬇️"
         await callback.message.edit_text(
@@ -268,6 +331,7 @@ async def back_to_detail(callback: types.CallbackQuery, state: FSMContext):
 async def get_contacts(callback: types.CallbackQuery,
                        state: FSMContext,
                        bot: Bot):
+    print("Выбрал")
     id_point = callback.data
     address = await DatabaseAPI.get_adress_point(id_point=id_point)
     await state.update_data(address=address)
