@@ -159,7 +159,8 @@ async def go_order(callback: types.CallbackQuery, state: FSMContext):
     params_item = await params_select_item(item=choose_detail, state=state)
     await state.update_data(choose_detail=choose_detail, index_detail=callback.data,
                             count_product=1)
-    if callback.from_user.id not in [1878562358, 416600624]:
+    admins = await DatabaseAPI.get_admins()
+    if callback.from_user.id not in admins:
         builder = InlineKeyboardBuilder()
         builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{callback.data}")
         builder.row(

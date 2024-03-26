@@ -460,5 +460,26 @@ class DatabaseAPI(object):
 
         return data["data"][0]
 
+    @staticmethod
+    async def get_admins():
 
+        BEARER_TOKEN = f"Bearer {TOKEN_DIRECTUS}"
+
+        headers = {
+            'Authorization': BEARER_TOKEN
+        }
+
+        url = f"{DIRECTUS_API_URL}/items/autogait_users?filter[admin][_eq]=True"
+
+        async with aiohttp.ClientSession(headers=headers) as session:
+
+            response = await session.get(url=url)
+
+        if response.status in [200, 204]:
+
+            data = await response.json(content_type=None)
+            return [int(user["telegram_id"]) for user in data["data"]]
+
+        else:
+            return []
 
