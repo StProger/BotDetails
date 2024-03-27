@@ -73,7 +73,11 @@ async def handle_action_item(callback: types.CallbackQuery, state: FSMContext):
 
     await state.set_state(SGetDetail.order)
     print("Поставил стейт")
-    await callback.message.edit_text(
+    try:
+        await callback.message.delete()
+    except:
+        pass
+    await callback.message.answer(
         text=params_item,
         reply_markup=builder.as_markup()
     )
