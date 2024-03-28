@@ -83,6 +83,11 @@ async def action_minus_item_busket(callback: types.CallbackQuery,
         )
         builder.row(
             types.InlineKeyboardButton(
+                text="Корзина", callback_data="get_basket"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
                 text="Меню", callback_data="go_menu"
             )
         )
@@ -125,6 +130,11 @@ async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
         )
         builder.row(
             types.InlineKeyboardButton(
+                text="Корзина", callback_data="get_basket"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
                 text="Назад", callback_data="back_to_choose_detail"
             ),
             types.InlineKeyboardButton(
@@ -149,7 +159,7 @@ async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
 async def action_plus_item_busket(callback: types.CallbackQuery,
                                   state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
-
+    print("работает action")
     await state.update_data(count_product=current_count)
     state_data = await state.get_data()
     builder = InlineKeyboardBuilder()
@@ -167,6 +177,11 @@ async def action_plus_item_busket(callback: types.CallbackQuery,
     )
     builder.row(
         types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Корзина", callback_data="get_basket"
+        )
     )
     builder.row(
         types.InlineKeyboardButton(
@@ -188,7 +203,7 @@ async def action_plus_item_busket(callback: types.CallbackQuery,
 @busket_router.callback_query(SGetDetail.order, F.data.startswith("plus_item_"))
 async def plus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
-
+    print("Работает обычный")
     await state.update_data(count_product=current_count)
     state_data = await state.get_data()
     builder = InlineKeyboardBuilder()
@@ -206,6 +221,11 @@ async def plus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     )
     builder.row(
         types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Корзина", callback_data="get_basket"
+        )
     )
     builder.row(
         types.InlineKeyboardButton(
