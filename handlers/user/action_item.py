@@ -43,13 +43,13 @@ async def handle_action_item(callback: types.CallbackQuery, state: FSMContext):
     builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_0")
     builder.row(
         types.InlineKeyboardButton(
-            text="➖", callback_data="minus_item_0"
+            text="➖", callback_data="action_minus_item_0"
         ),
         types.InlineKeyboardButton(
             text="1 шт.", callback_data="_"
         ),
         types.InlineKeyboardButton(
-            text="➕", callback_data="plus_item_2"
+            text="➕", callback_data="action_plus_item_2"
         )
     )
     builder.row(

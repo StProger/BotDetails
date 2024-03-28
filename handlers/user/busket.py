@@ -53,6 +53,50 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
                           count_item=state_data['count_product'])
     await callback.answer("Товар добавлен в корзину✅", show_alert=True)
 
+@busket_router.callback_query(SGetDetail.order,
+                              F.data.startswith("action_minus_item"))
+async def action_minus_item_busket(callback: types.CallbackQuery,
+                                   state: FSMContext):
+
+    current_count = int(callback.data.split("_")[-1])
+    if current_count == 0:
+        await callback.answer()
+        return
+    else:
+        await state.update_data(count_product=current_count)
+        state_data = await state.get_data()
+        builder = InlineKeyboardBuilder()
+        builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{state_data['index_detail']}")
+        builder.row(
+            types.InlineKeyboardButton(
+                text="➖", callback_data=f"action_minus_item_{current_count - 1}"
+            ),
+            types.InlineKeyboardButton(
+                text=f"{current_count} шт.", callback_data="_"
+            ),
+            types.InlineKeyboardButton(
+                text="➕", callback_data=f"action_plus_item_{current_count + 1}"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Меню", callback_data="go_menu"
+            )
+        )
+        builder.row(
+            types.InlineKeyboardButton(
+                text="Ввести другой артикул", callback_data="get_detail_menu"
+            )
+        )
+
+        await callback.message.edit_reply_markup(
+            text=callback.message.text,
+            reply_markup=builder.as_markup()
+        )
+
 
 @busket_router.callback_query(SGetDetail.order, F.data.contains("minus_item_"))
 async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
@@ -98,9 +142,51 @@ async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
             reply_markup=builder.as_markup()
         )
 
+@busket_router.callback_query(
+    SGetDetail.order,
+    F.data.startswith("action_plus_item")
+)
+async def action_plus_item_busket(callback: types.CallbackQuery,
+                                  state: FSMContext):
+    current_count = int(callback.data.split("_")[-1])
+
+    await state.update_data(count_product=current_count)
+    state_data = await state.get_data()
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Добавить в корзину", callback_data=f"add_to_busket_{state_data['index_detail']}")
+    builder.row(
+        types.InlineKeyboardButton(
+            text="➖", callback_data=f"action_minus_item_{current_count - 1}"
+        ),
+        types.InlineKeyboardButton(
+            text=f"{current_count} шт.", callback_data="_"
+        ),
+        types.InlineKeyboardButton(
+            text="➕", callback_data=f"action_plus_item_{current_count + 1}"
+        )
+    )
+    builder.row(
+        types.InlineKeyboardButton(text="Оформить заказ", callback_data="go_order")
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Меню", callback_data="go_menu"
+        )
+    )
+    builder.row(
+        types.InlineKeyboardButton(
+            text="Ввести другой артикул", callback_data="get_detail_menu"
+        )
+    )
+
+    await callback.message.edit_reply_markup(
+        text=callback.message.text,
+        reply_markup=builder.as_markup()
+    )
+
 
 @busket_router.callback_query(SGetDetail.order, F.data.contains("plus_item_"))
-async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
+async def plus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
 
     await state.update_data(count_product=current_count)
