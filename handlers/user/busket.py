@@ -98,7 +98,7 @@ async def action_minus_item_busket(callback: types.CallbackQuery,
         )
 
 
-@busket_router.callback_query(SGetDetail.order, F.data.contains("minus_item_"))
+@busket_router.callback_query(SGetDetail.order, F.data.startswith("minus_item_"))
 async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
     if current_count == 0:
@@ -185,7 +185,7 @@ async def action_plus_item_busket(callback: types.CallbackQuery,
     )
 
 
-@busket_router.callback_query(SGetDetail.order, F.data.contains("plus_item_"))
+@busket_router.callback_query(SGetDetail.order, F.data.startswith("plus_item_"))
 async def plus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
 
