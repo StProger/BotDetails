@@ -13,4 +13,4 @@ DIRECTUS_API_URL = os.getenv("DIRECTUS_API_URL")
 
 REDIS_URL = os.getenv("REDIS_URL")
 
-URL_UPDATE="https://b453947.leadteh.ru/webhooks/telegram/302636:DCAHOybbWWTXR4DNtn54XQ3h5D7EyADMLUWVgHHQ6VdmM3ft0Z54utt0D6xpJosF"
+URL_UPDATE="https://b463160.leadteh.ru/webhooks/telegram/308966:f8YzRIpSoD3PN9LGqQwJtamWUkjBjUgc7VoeqlwiGTun229EEXU623JbtOKr0PuM"
