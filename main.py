@@ -15,6 +15,7 @@ from config import TOKEN_BOT, REDIS_URL
 from handlers import main_router_user
 
 import logging
+import os
 
 from utils.sent_update import sent_update_leadtech
 
@@ -76,5 +77,7 @@ async def main():
 
 
 if __name__ == '__main__':
+    if not os.path.exists("data"):
+        os.mkdir("data")
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

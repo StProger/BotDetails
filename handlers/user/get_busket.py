@@ -25,6 +25,7 @@ get_busket_router = Router()
 async def content_busket(callback: types.CallbackQuery,
                          is_empty,
                          state: FSMContext):
+    print(is_empty)
     try:
         if is_empty:
             await callback.answer("Корзина пуста", show_alert=True)
@@ -40,4 +41,4 @@ async def content_busket(callback: types.CallbackQuery,
                 reply_markup=keyboard
             )
     except Exception as ex:
-        print(ex)
+        print(f"Ошибка в корзине {ex}")
