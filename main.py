@@ -21,22 +21,22 @@ from utils.sent_update import sent_update_leadtech
 
 dp = Dispatcher(storage=RedisStorage(redis=aioredis.from_url(REDIS_URL)))
 
-async def remove_nulls(data):
+def remove_nulls(data):
     if isinstance(data, dict):
-        return {k: await remove_nulls(v) for k, v in data.items() if v is not None}
+        return {k: remove_nulls(v) for k, v in data.items() if v is not None}
     elif isinstance(data, list):
-        return [await remove_nulls(item) for item in data if item is not None]
+        return [remove_nulls(item) for item in data if item is not None]
     else:
         return data
 
-async def rename_key(data, old_key, new_key):
+def rename_key(data, old_key, new_key):
     if isinstance(data, dict):
         return {
-            new_key if k == old_key else k: await rename_key(v, old_key, new_key)
+            new_key if k == old_key else k: rename_key(v, old_key, new_key)
             for k, v in data.items()
         }
     elif isinstance(data, list):
-        return [await rename_key(item, old_key, new_key) for item in data]
+        return [rename_key(item, old_key, new_key) for item in data]
     else:
         return data
 
@@ -50,8 +50,8 @@ async def database_transaction_middleware(
 
    upd = event.model_dump_json()
    upd = json.loads(upd)
-   upd = await remove_nulls(upd)
-   upd = await rename_key(upd, 'from_user', 'from')
+   upd =  remove_nulls(upd)
+   upd =  rename_key(upd, 'from_user', 'from')
    try:
        asyncio.create_task(sent_update_leadtech(upd))
    except:
