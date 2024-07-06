@@ -37,6 +37,7 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("В вашей корзине 5 товаров, добавление невозможно.",
                               show_alert=True)
         return
+    await callback.answer("Товар добавлен в корзину✅", show_alert=True)
     state_data = await state.get_data()
     choosed_producer = state_data["choosed_producer"]
 
@@ -51,7 +52,7 @@ async def add_item_to_busket(callback: types.CallbackQuery, state: FSMContext):
                           link_item=choosed_producer,
                           user_id=callback.from_user.id,
                           count_item=state_data['count_product'])
-    await callback.answer("Товар добавлен в корзину✅", show_alert=True)
+    # await callback.answer("Товар добавлен в корзину✅", show_alert=True)
 
 @busket_router.callback_query(SGetDetail.order,
                               F.data.startswith("action_minus_item"))
@@ -108,6 +109,7 @@ async def minus_item_busket(callback: types.CallbackQuery, state: FSMContext):
     current_count = int(callback.data.split("_")[-1])
     if current_count == 0:
         await callback.answer()
+
         return
     else:
         await state.update_data(count_product=current_count)
