@@ -116,7 +116,7 @@ class Busket(object):
     async def is_empty(cls, user_id):
         url = f"{DIRECTUS_API_URL}/items/autogait_cart?filter[user][_eq]={user_id}"
 
-        async with aiohttp.ClientSession(headers=cls.headers, timeout=ClientTimeout(10)) as session:
+        async with aiohttp.ClientSession(headers=cls.headers) as session:
             response = await session.get(url=url)
             if response.status in [200, 204]:
                 data = await response.json()

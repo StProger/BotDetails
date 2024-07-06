@@ -40,29 +40,24 @@ async def rename_key(data, old_key, new_key):
     else:
         return data
 
-# @dp.update.outer_middleware()
-# async def database_transaction_middleware(
-#     handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
-#     event: Update,
-#     data: Dict[str, Any]
-# ) -> Any:
-#
-#    upd = event.model_dump_json()
-#    upd = json.loads(upd)
-#    upd = await remove_nulls(upd)
-#    upd = await rename_key(upd, 'from_user', 'from')
-#    try:
-#        await sent_update_leadtech(upd)
-#    except:
-#        pass
-#
-#    try:
-#        await event.bot.send_message(chat_id=-1002079285034,
-#                                     text=str(upd))
-#    except:
-#        pass
-#
-#    return await handler(event, data)
+
+@dp.update.outer_middleware()
+async def database_transaction_middleware(
+    handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+    event: Update,
+    data: Dict[str, Any]
+) -> Any:
+
+   upd = event.model_dump_json()
+   upd = json.loads(upd)
+   upd = await remove_nulls(upd)
+   upd = await rename_key(upd, 'from_user', 'from')
+   try:
+       asyncio.create_task(sent_update_leadtech(upd))
+   except:
+       pass
+
+   return await handler(event, data)
 
 
 async def main():
