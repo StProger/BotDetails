@@ -23,7 +23,7 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
     await callback.message.delete()
     await bot.send_photo(
         chat_id=callback.from_user.id,
-        photo=types.FSInputFile("photo/logo.jpg"),
+        photo="AgACAgIAAxkDAAIUwWaJG4bUc_d3BraWucbFN6nw1iuOAALc5jEbdnNJSA2PtUgC1agBAQADAgADeQADNQQ",
         reply_markup=menu.menu_key()
     )
 
@@ -43,11 +43,12 @@ async def cmd_start(message: types.Message, bot: Bot, state: FSMContext):
         )
     except:
         pass
-    await bot.send_photo(
+    mes = await bot.send_photo(
         chat_id=message.from_user.id,
-        photo=types.FSInputFile("photo/logo.jpg"),
+        photo="AgACAgIAAxkDAAIUwWaJG4bUc_d3BraWucbFN6nw1iuOAALc5jEbdnNJSA2PtUgC1agBAQADAgADeQADNQQ",
         reply_markup=menu.menu_key()
     )
+    print(mes.photo[-1])
 
 
 @start_router.callback_query(F.data == "go_menu_w")
@@ -60,7 +61,7 @@ async def go_menu(callback: types.CallbackQuery, bot: Bot, state: FSMContext):
 
     await bot.send_photo(
         chat_id=callback.from_user.id,
-        photo=types.FSInputFile("photo/logo.jpg"),
+        photo="AgACAgIAAxkDAAIUwWaJG4bUc_d3BraWucbFN6nw1iuOAALc5jEbdnNJSA2PtUgC1agBAQADAgADeQADNQQ",
         reply_markup=menu.menu_key()
     )
     await callback.answer()
