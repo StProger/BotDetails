@@ -6,7 +6,7 @@ services:
       - redis-data:/data
     command:
       - redis-server
-    restart: on-failure
+    restart: always
     ports:
       - "6379:6379"
 
